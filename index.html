@@ -20,7 +20,7 @@
       --gold:#ffb020;
       --shadow: 0 12px 34px rgba(0,0,0,.12);
       --radius: 18px;
-      --outlineCoffee:#2b1a08; /* ✅ 鹿鹿貼圖風深咖啡線 */
+      --outlineCoffee:#2b1a08; /* 鹿鹿貼圖風深咖啡線 */
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--text); }
@@ -275,7 +275,7 @@
     .stack{
       position:relative;
       display:flex;
-      flex-direction: column-reverse; /* ✅ 關鍵 */
+      flex-direction: column-reverse;
       gap:8px;
       padding-bottom:60px;
       min-height:0;
@@ -284,7 +284,7 @@
     .disk{
       height: 30px;
       border-radius: 999px;
-      border:3px solid var(--outlineCoffee); /* ✅ 鹿鹿貼圖粗線 */
+      border:3px solid var(--outlineCoffee);
       box-shadow: 0 10px 18px rgba(0,0,0,.10);
       display:flex;
       align-items:center;
@@ -299,8 +299,40 @@
         0 1px 0 rgba(0,0,0,.25),
         0 0 6px rgba(255,255,255,.25);
       font-variant-numeric: tabular-nums;
+
+      isolation: isolate; /* ✅ 斑點/高光疊加穩定 */
     }
     .disk.small{ height:28px; }
+
+    /* ✅ 斑點層（每日固定，由 JS 寫入 --spots），避開數字區域 */
+    .disk::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:999px;
+      pointer-events:none;
+      z-index:0;
+      background: var(--spots, none);
+      mix-blend-mode: multiply;
+      opacity: 0;
+    }
+    /* ✅ 斑點強度：盤子越大越明顯（5 最明顯） */
+    .disk[data-size="3"]::before{ opacity: .18; }
+    .disk[data-size="4"]::before{ opacity: .26; }
+    .disk[data-size="5"]::before{ opacity: .42; }
+
+    /* ✅ 亮面高光（在斑點上面） */
+    .disk::after{
+      content:"";
+      position:absolute;
+      inset:-30px -30px auto auto;
+      width:90px; height:90px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 60%);
+      transform: rotate(20deg);
+      opacity:.7;
+      pointer-events:none;
+      z-index:2;
+    }
 
     /* ✅ 拿起：抖抖（鹿鹿緊張） */
     @keyframes luluJitter{
@@ -317,18 +349,6 @@
       box-shadow: 0 14px 26px rgba(43,127,255,.18);
       animation: luluJitter .24s ease-in-out infinite;
       transform-origin: 50% 90%;
-    }
-
-    /* ✅ 亮面高光 */
-    .disk::after{
-      content:"";
-      position:absolute;
-      inset:-30px -30px auto auto;
-      width:90px; height:90px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 60%);
-      transform: rotate(20deg);
-      opacity:.7;
-      pointer-events:none;
     }
 
     /* ✅ 通關：最底盤金光閃一下 */
@@ -611,7 +631,6 @@
           <div class="modal">
             <h3>🎉 任務完成！鹿鹿點頭中</h3>
 
-            <!-- ✅ 鹿鹿點頭圖示 -->
             <div class="luluNod" id="luluNod" aria-label="鹿鹿點頭">
               <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
                 <circle cx="32" cy="34" r="18" fill="#FFE100" stroke="#2b1a08" stroke-width="3"/>
@@ -713,12 +732,13 @@
   <div class="toast" id="toast"></div>
 
 <script>
-/* ========= 6) LIFF：只改這一行 ========= */
+/* ========= LIFF：只改這一行 ========= */
 const LIFF_ID = "2008838401-Ss5SClrX";
 /* ====================================== */
 
 const LS_TUTORIAL_LAST_DATE = "rr_tutorial_last_date";
 const LS_DAILY_LEADER_PREFIX = "lulu_hanoi_leader_"; // + YYYY-MM-DD
+const LS_DAILY_SPOTS_PREFIX  = "lulu_hanoi_spots_";  // + YYYY-MM-DD
 
 const POLE_LABELS = ["A","B","C"]; // ✅ 只留 A/B/C
 
@@ -796,6 +816,114 @@ function minMovesFor(n){ return (2 ** n) - 1; }
 
 /* ✅ 顯示數字：數字越大盤越大（1 最小、N 最大） */
 function displayDiskNumber(size){ return size; }
+
+/* ===== ✅ Daily spots (same day fixed, next day changes) ===== */
+let dailySpotsCache = null; // { day, map }
+
+function mulberry32(seed){
+  return function(){
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashStrToSeed(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/* ✅ 斑點生成：5 更大更密，並自動避開中央數字區域 */
+function generateSpotsForSize(day, size){
+  const seed = hashStrToSeed(`${day}|size:${size}|lulu`);
+  const rnd = mulberry32(seed);
+
+  // 斑點數量：5 最大盤更密
+  const count = (size === 3) ? 6 : (size === 4) ? 9 : 14;
+
+  // 斑點半徑：5 最大盤更大
+  const baseR = (size === 3) ? 8 : (size === 4) ? 10 : 14;
+
+  // 中央避讓區（橢圓）：避免蓋到數字
+  const avoidRx = (size === 3) ? 14 : (size === 4) ? 16 : 18; // %
+  const avoidRy = (size === 3) ? 18 : (size === 4) ? 20 : 22; // %
+
+  // 邊界留白：避免斑點切到邊框
+  const marginX = 10; // %
+  const marginY = 16; // %
+
+  const layers = [];
+  let attempts = 0;
+
+  while(layers.length < count && attempts < 120){
+    attempts++;
+
+    const x = Math.round(marginX + rnd() * (100 - marginX*2));
+    const y = Math.round(marginY + rnd() * (100 - marginY*2));
+
+    const dx = x - 50;
+    const dy = y - 50;
+    const inAvoid = (dx*dx)/(avoidRx*avoidRx) + (dy*dy)/(avoidRy*avoidRy) < 1;
+    if(inAvoid) continue;
+
+    const r = Math.round(baseR * (0.75 + rnd()*0.85));
+    const alphaBase = (size === 3) ? 0.30 : (size === 4) ? 0.33 : 0.38;
+    const alpha = alphaBase + rnd()*0.10;
+
+    const c = (layers.length % 2 === 0)
+      ? `rgba(74,34,6,${alpha.toFixed(3)})`
+      : `rgba(122,63,18,${(alpha*0.95).toFixed(3)})`;
+
+    layers.push(`radial-gradient(circle at ${x}% ${y}%, ${c} 0 ${r}px, transparent ${r+1}px)`);
+  }
+
+  // 最大盤追加「主斑」兩顆（更像鹿鹿身體）
+  if(size === 5){
+    layers.push(
+      `radial-gradient(circle at 24% 64%, rgba(74,34,6,0.42) 0 18px, transparent 19px)`,
+      `radial-gradient(circle at 76% 58%, rgba(122,63,18,0.40) 0 17px, transparent 18px)`
+    );
+  }
+
+  return layers.join(", ");
+}
+
+function loadOrCreateDailySpots(){
+  const day = todayStr();
+  if(dailySpotsCache && dailySpotsCache.day === day) return dailySpotsCache.map;
+
+  const key = LS_DAILY_SPOTS_PREFIX + day;
+  try{
+    const raw = localStorage.getItem(key);
+    if(raw){
+      const obj = JSON.parse(raw);
+      if(obj && typeof obj === "object"){
+        dailySpotsCache = { day, map: obj };
+        return obj;
+      }
+    }
+  }catch{}
+
+  // 只做 3/4/5（1/2 保持乾淨可愛）
+  const map = {
+    "3": generateSpotsForSize(day, 3),
+    "4": generateSpotsForSize(day, 4),
+    "5": generateSpotsForSize(day, 5),
+  };
+
+  try{ localStorage.setItem(key, JSON.stringify(map)); }catch{}
+  dailySpotsCache = { day, map };
+  return map;
+}
+function getDailySpots(size){
+  if(size < 3) return "";
+  const map = loadOrCreateDailySpots();
+  return map[String(Math.min(5, size))] || "";
+}
 
 /* ===== 3) Daily tutorial gating ===== */
 function getTutorialLastDate(){
@@ -943,7 +1071,7 @@ function diskWidthPercent(size){
   return min + (max-min)*t;
 }
 
-/* ✅ 鹿鹿膚色盤：亮黃 → 橘 → 深咖啡（貼圖感） */
+/* ✅ 鹿鹿膚色盤：亮黃 → 橘 → 深咖啡 */
 function diskColor(size){
   const colors = {
     1: ["#FFF36A", "#FFE033"], // 亮黃高光
@@ -997,9 +1125,14 @@ function render(){
       d.style.background = diskColor(size);
       d.textContent = String(displayDiskNumber(size));
 
-      /* ✅ 標記：通關金光要抓 C 柱最大盤 */
+      // ✅ 標記（通關金光 + 斑點強度）
       d.dataset.pole = String(i);
       d.dataset.size = String(size);
+
+      // ✅ 每日固定斑點（同一天固定、隔天換）
+      const spots = getDailySpots(size);
+      if(spots) d.style.setProperty("--spots", spots);
+      else d.style.removeProperty("--spots");
 
       const isTop = (size === stacks[i][stacks[i].length-1]);
       const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
@@ -1029,7 +1162,7 @@ function onPoleTap(poleIndex){
     if(size === null){ toast("這根柱子空空的～"); return; }
     selected = { fromPole: poleIndex, size };
     ui.selectInfo.textContent = `已拿起：${displayDiskNumber(size)}（${POLE_LABELS[poleIndex]}）`;
-    sfxPop("pick"); // ✅ 點擊回饋音（拿起）
+    sfxPop("pick");
     render();
     return;
   }
@@ -1044,7 +1177,7 @@ function onPoleTap(poleIndex){
 
   if(!canPlace(size, poleIndex)){
     toast("放不下：先把小的放上面～");
-    sfxPop("bad"); // ✅ 失敗回饋音
+    sfxPop("bad");
     return;
   }
 
@@ -1064,7 +1197,7 @@ function onPoleTap(poleIndex){
   ui.moves.textContent = String(moves);
   selected = null;
   ui.selectInfo.textContent = "未選取";
-  sfxPop("drop"); // ✅ 點擊回饋音（放下）
+  sfxPop("drop");
   render();
 
   checkWin();
@@ -1075,19 +1208,19 @@ function checkWin(){
 
   stopTimer();
 
-  /* ✅ 通關：C柱(2)最大盤(size=N) 金光閃一下 */
+  // ✅ 通關：C柱(2)最大盤(size=N) 金光閃一下
   requestAnimationFrame(()=>{
     const el = document.querySelector(`.disk[data-pole="2"][data-size="${N}"]`);
     if(el){
       el.classList.remove("winFlash");
-      void el.offsetWidth; // 讓動畫可重播
+      void el.offsetWidth;
       el.classList.add("winFlash");
     }
   });
 
   ui.overlayWin.classList.add("show");
 
-  /* ✅ 鹿鹿點頭：每次通關重播 */
+  // ✅ 鹿鹿點頭：每次通關重播
   const nod = document.getElementById("luluNod");
   if(nod){
     nod.classList.remove("play");
@@ -1115,7 +1248,7 @@ function checkWin(){
   renderLeaders();
 }
 
-/* ===== 5) Procedural chill BGM (no external audio) ===== */
+/* ===== Procedural chill BGM (no external audio) ===== */
 let bgmOn = true;
 let audio = {
   ctx: null,
@@ -1317,13 +1450,13 @@ function sfxPop(kind){
   const f = kind==="pick" ? 520 : (kind==="drop" ? 420 : 320);
   o.frequency.setValueAtTime(f, t);
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.04, t + 0.01); /* ✅ 更柔和不吵 */
+  g.gain.exponentialRampToValueAtTime(0.04, t + 0.01); // 柔和不吵
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
   o.connect(g); g.connect(audio.master);
   o.start(t); o.stop(t + 0.11);
 }
 
-/* ===== 6) LIFF init ===== */
+/* ===== LIFF init ===== */
 async function initLIFF(){
   const inLineUA = /Line/i.test(navigator.userAgent);
   try{
@@ -1432,6 +1565,9 @@ ui.btnNext.addEventListener("click", ()=>{
 
   ui.todayPill.textContent = "今天";
   ui.todayKey.textContent = todayStr();
+
+  // 提前生成今日斑點（避免第一次 render 才建）
+  loadOrCreateDailySpots();
 
   renderLeaders();
   resetGame(N, MODE);
