@@ -38,6 +38,7 @@
       gap:10px;
       max-width:1100px;
       margin:0 auto;
+      min-height:0;
     }
 
     .topbar{
@@ -50,35 +51,21 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      flex: 0 0 auto;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 240px;
-    }
+    .brand{ display:flex; align-items:center; gap:10px; min-width: 220px; }
     .logo{
       width:44px; height:44px;
       border-radius: 14px;
       background: #fff;
       border:1px solid rgba(0,0,0,.07);
       box-shadow: 0 10px 22px rgba(0,0,0,.08);
-      display:grid;
-      place-items:center;
+      display:grid; place-items:center;
       overflow:hidden;
       flex: 0 0 auto;
     }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width: 160px;
-    }
-    .title h1{
-      margin:0; font-size:15px;
-      display:flex; align-items:center; gap:8px;
-      white-space:nowrap;
-    }
+    .title{ display:flex; flex-direction:column; gap:2px; min-width: 150px; }
+    .title h1{ margin:0; font-size:15px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
     .badge{
       font-size:12px;
       padding:2px 8px;
@@ -105,9 +92,7 @@
       margin-left:auto;
     }
     .chip{
-      display:flex;
-      align-items:center;
-      gap:6px;
+      display:flex; align-items:center; gap:6px;
       padding:8px 10px;
       border-radius: 999px;
       background:#fff;
@@ -130,6 +115,7 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
     }
     .btn.primary{
       background: linear-gradient(135deg, var(--blue), #6aa7ff);
@@ -143,14 +129,16 @@
     }
     .btn:active{ transform: translateY(1px); }
 
+    /* ✅ 固定直向可用：小螢幕直接上下排列，避免擠壓 */
     .main{
       flex:1;
       display:flex;
       gap:10px;
       min-height:0;
+      overflow:hidden;
     }
     .board{
-      flex: 1;
+      flex: 1 1 auto;
       background:var(--card);
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
@@ -160,6 +148,7 @@
       display:flex;
       flex-direction:column;
       min-height:0;
+      overflow:hidden;
     }
     .boardHeader{
       display:flex;
@@ -167,11 +156,13 @@
       justify-content:space-between;
       gap:10px;
       margin-bottom:8px;
+      flex: 0 0 auto;
     }
     .hint{
       font-size:12px;
       color: var(--muted);
       line-height:1.5;
+      max-width: 70%;
     }
     .hint b{ color: var(--text); }
     .selectInfo{
@@ -179,16 +170,18 @@
       color: var(--muted);
       text-align:right;
       white-space:nowrap;
+      flex: 0 0 auto;
     }
 
     .poles{
-      flex:1;
+      flex:1 1 auto;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
       align-items:stretch;
       min-height:0;
     }
+
     .pole{
       position:relative;
       border-radius: 16px;
@@ -215,7 +208,6 @@
       font-size:12px;
       color: var(--muted);
       display:flex; gap:8px; align-items:center;
-      max-width: 72%;
       min-width: 0;
     }
     .poleLabel .dot{
@@ -227,6 +219,8 @@
       overflow:hidden;
       text-overflow:ellipsis;
       min-width:0;
+      font-weight:800;
+      color: var(--text);
     }
     .poleCount{
       font-size:12px;
@@ -236,7 +230,7 @@
     .rod{
       position:absolute;
       left:50%;
-      bottom:64px; /* 留給 A/B/C 座牌 */
+      bottom:64px;
       width:10px;
       height: calc(100% - 100px);
       transform: translateX(-50%);
@@ -245,7 +239,6 @@
       pointer-events:none;
     }
 
-    /* 底座：分成「平台」+「A/B/C 大字座牌」(融會圖二) */
     .platform{
       position:absolute;
       left:10px; right:10px; bottom:14px;
@@ -283,11 +276,10 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      padding-bottom:60px; /* 給座牌空間 */
+      padding-bottom:60px;
       min-height:0;
     }
 
-    /* 環：改成「數字在正中」(融會圖一) */
     .disk{
       height: 30px;
       border-radius: 999px;
@@ -323,12 +315,15 @@
     }
 
     .side{
-      width: 340px;
-      max-width: 44vw;
+      width: 330px;
+      flex: 0 0 330px;
       display:flex;
       flex-direction:column;
       gap:10px;
       min-height:0;
+      overflow:auto;
+      padding-right: 4px;
+      overscroll-behavior: contain;
     }
     .card{
       background:var(--card);
@@ -336,7 +331,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding:10px;
-      min-height:0;
+      flex: 0 0 auto;
     }
     .card h2{
       margin:0 0 8px;
@@ -381,7 +376,7 @@
       display:flex;
       flex-direction:column;
       gap:6px;
-      max-height: 260px;
+      max-height: 220px;
       overflow:auto;
       padding-right: 4px;
     }
@@ -434,29 +429,32 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
-    /* overlays */
+    /* overlays：縮小不遮太多 */
     .overlay{
       position:absolute;
       inset:0;
       display:none;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
-      background: rgba(255,255,255,.62);
-      backdrop-filter: blur(10px);
+      padding:10px;
+      background: rgba(18,32,44,.18);
+      backdrop-filter: blur(6px);
       border-radius: var(--radius);
       z-index: 100;
     }
     .overlay.show{ display:flex; }
 
     .modal{
-      width:min(620px, 92%);
+      width:min(560px, 96%);
       background:#fff;
-      border-radius: 22px;
+      border-radius: 18px;
       box-shadow: 0 18px 55px rgba(0,0,0,.18);
-      padding:14px;
+      padding:12px;
       border:1px solid rgba(0,0,0,.08);
+      max-height: 52vh;
+      overflow:auto;
     }
-    .modal h3{ margin:0 0 6px; font-size:16px; }
+    .modal h3{ margin:0 0 6px; font-size:16px; display:flex; gap:8px; align-items:center; }
     .modal p{
       margin:0 0 10px;
       color: var(--muted);
@@ -470,21 +468,11 @@
       justify-content:space-between;
       align-items:center;
       flex-wrap:wrap;
-      margin-top: 10px;
+      margin-top: 8px;
     }
-    .modal .actions .left{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .modal .actions .right{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-left:auto;
-    }
+    .modal .actions .left{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .modal .actions .right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-left:auto; }
+
     .kpi{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -504,75 +492,26 @@
       color: var(--text);
       font-variant-numeric: tabular-nums;
     }
-    .kpi .box .t{
-      font-size:12px;
-      color: var(--muted);
-      margin-top:2px;
-    }
+    .kpi .box .t{ font-size:12px; color: var(--muted); margin-top:2px; }
 
-    /* Orientation full-screen overlay */
-    #orientationGate{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background: rgba(18,32,44,.92);
-      color:#fff;
-      z-index: 9999;
-      padding:16px;
-      text-align:center;
-    }
-    #orientationGate.show{ display:flex; }
-    .og-card{
-      width:min(520px, 92%);
-      border-radius: 24px;
-      padding:18px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow: 0 18px 60px rgba(0,0,0,.35);
-    }
-    .og-title{ font-size:18px; font-weight:900; margin:0 0 8px; }
-    .og-desc{ margin:0; opacity:.9; line-height:1.6; font-size:14px; white-space:pre-line; }
-    .og-icon{
-      margin: 12px auto 10px;
-      width:84px; height:84px;
-      border-radius: 24px;
-      display:grid; place-items:center;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.18);
-    }
-
+    /* ✅ 直向：上下排列，右側面板往下放（可捲） */
     @media (max-width: 900px){
-      .main{ flex-direction:column; }
-      .side{ width:100%; max-width:100%; flex-direction:row; }
-      .side .card{ flex:1; }
-      .leader{ max-height: 180px; }
-    }
-    @media (max-width: 560px){
-      .side{ flex-direction:column; }
-      .sub{ max-width: 240px; }
+      body{ overflow:auto; }
+      .wrap{ height:auto; min-height:100%; }
+      .main{ flex-direction:column; overflow:visible; }
+      .side{
+        width:100%;
+        flex: 0 0 auto;
+        overflow:visible;
+        padding-right: 0;
+      }
+      .leader{ max-height: 220px; }
+      .hint{ max-width: 100%; }
     }
   </style>
 </head>
 
 <body>
-  <!-- 1) 強制橫向：直向不可開始（遮罩＋提示） -->
-  <div id="orientationGate" aria-live="polite">
-    <div class="og-card">
-      <div class="og-icon">
-        <svg width="54" height="54" viewBox="0 0 24 24" fill="none">
-          <path d="M7 2h6a2 2 0 0 1 2 2v1" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M9 6h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="white" stroke-width="2" opacity=".9"/>
-          <path d="M4 12a8 8 0 0 0 8 8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 22l-2-2m2 2l2-2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <p class="og-title">請先把手機橫過來 🦒✨</p>
-      <p class="og-desc">本遊戲只支援「橫向」遊玩。\n轉為橫向後就會自動開始。</p>
-    </div>
-  </div>
-
   <div class="wrap" id="app">
     <div class="topbar">
       <div class="brand">
@@ -610,7 +549,7 @@
       <div class="board">
         <div class="boardHeader">
           <div class="hint">
-            操作：<b>點一下最上層環拿起 → 再點目標柱放下</b>。把所有環搬到 C 就通關！
+            操作：<b>點一下最上層環拿起 → 再點目標柱放下</b>。把所有環搬到 <b>C</b> 就通關！
           </div>
           <div class="selectInfo" id="selectInfo">未選取</div>
         </div>
@@ -683,7 +622,6 @@
             </span>
           </div>
 
-          <!-- ★ 新增：開局模式（融會圖一） -->
           <div class="row">
             <span>開局</span>
             <span class="select">
@@ -730,8 +668,7 @@ const LIFF_ID = "2008838401-Ss5SClrX";
 const LS_TUTORIAL_LAST_DATE = "rr_tutorial_last_date";
 const LS_DAILY_LEADER_PREFIX = "lulu_hanoi_leader_"; // + YYYY-MM-DD
 
-const POLE_LABELS = ["A","B","C"]; // 融會圖二
-const POLE_NAMES  = ["樹屋柱", "補給柱", "天空裂縫柱"]; // 鹿鹿世界觀保留
+const POLE_LABELS = ["A","B","C"]; // ✅ 已移除「樹屋柱/補給柱/天空裂縫柱」稱謂
 
 const ui = {
   modeBadge: document.getElementById("modeBadge"),
@@ -772,22 +709,18 @@ const ui = {
   leader: document.getElementById("leader"),
   todayPill: document.getElementById("todayPill"),
   todayKey: document.getElementById("todayKey"),
-
-  orientationGate: document.getElementById("orientationGate"),
 };
 
 let N = parseInt(ui.level.value, 10);
 let MODE = ui.startMode.value; // standard | demo
-let stacks = [[],[],[]]; // disk sizes (1 small .. N big), top is last
+let stacks = [[],[],[]]; // top is last (size: 1 small ... N big)
 let selected = null;
 let moves = 0;
 let timer = null;
 let startAt = null;
 let elapsedSec = 0;
 
-let appEnabled = true;
 let readyToPlay = false;
-
 let displayName = "鹿粉";
 
 /* ===== helpers ===== */
@@ -809,19 +742,8 @@ function toast(msg){
 }
 function minMovesFor(n){ return (2 ** n) - 1; }
 
-/* ===== 1) Orientation gate ===== */
-function isLandscape(){ return window.innerWidth > window.innerHeight; }
-function setGate(on){
-  ui.orientationGate.classList.toggle("show", on);
-  appEnabled = !on;
-  if(on){ stopTimer(); }
-  else{
-    if(readyToPlay && !ui.overlayWin.classList.contains("show")) startTimer();
-  }
-}
-function updateOrientationGate(){ setGate(!isLandscape()); }
-window.addEventListener("resize", updateOrientationGate);
-window.addEventListener("orientationchange", updateOrientationGate);
+/* ✅ 數字顯示反轉：讓開局「最下方顯示 1、最上方顯示 N」(但規則仍以 size 判斷) */
+function displayDiskNumber(size){ return (N - size + 1); }
 
 /* ===== 3) Daily tutorial gating ===== */
 function getTutorialLastDate(){
@@ -947,15 +869,11 @@ function resetGame(n, mode){
 
   ui.minMoves.textContent = String(minMovesFor(N));
 
-  // ★ 融會圖一：示範開局
   if(MODE === "demo"){
-    // 1 在 B、2 在 C、其餘 3..N 全在 A（由大到小堆好）
-    // A: N..3 (bottom->top)
     for(let s=N; s>=3; s--) stacks[0].push(s);
     if(N>=1) stacks[1].push(1);
     if(N>=2) stacks[2].push(2);
   }else{
-    // 標準：全部在 A（bottom->top: N..1）
     for(let s=N; s>=1; s--) stacks[0].push(s);
   }
 
@@ -973,15 +891,13 @@ function diskWidthPercent(size){
   return min + (max-min)*t;
 }
 function diskColor(size){
-  // 參考圖一：偏紅系；仍保留柔和漸層質感
   const t = (size-1)/(N-1 || 1);
-  const h = 8 + t*32;       // red -> orange-ish
+  const h = 8 + t*32; // red -> orange-ish
   const s = 86;
   const l1 = 52 - t*8;
   const l2 = 42 - t*10;
   return `linear-gradient(180deg, hsl(${h} ${s}% ${l1}%), hsl(${h} ${s}% ${l2}%))`;
 }
-
 function topDisk(poleIndex){
   const arr = stacks[poleIndex];
   return arr.length ? arr[arr.length-1] : null;
@@ -1001,10 +917,11 @@ function render(){
 
     const poleTop = document.createElement("div");
     poleTop.className = "poleTop";
+    // ✅ 移除稱謂，只留 A/B/C
     poleTop.innerHTML = `
       <div class="poleLabel">
         <span class="dot"></span>
-        <span class="name">${POLE_LABELS[i]}｜${POLE_NAMES[i]}</span>
+        <span class="name">${POLE_LABELS[i]}</span>
       </div>
       <div class="poleCount">${stacks[i].length} 枚</div>
     `;
@@ -1021,7 +938,8 @@ function render(){
       d.className = "disk" + (size<=2 ? " small": "");
       d.style.width = diskWidthPercent(size) + "%";
       d.style.background = diskColor(size);
-      d.textContent = String(size); // ★ 數字置中（融會圖一）
+      // ✅ 數字改成「最下 1、最上 N」
+      d.textContent = String(displayDiskNumber(size));
 
       const isTop = (size === stacks[i][stacks[i].length-1]);
       const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
@@ -1043,7 +961,6 @@ function render(){
 }
 
 function onPoleTap(poleIndex){
-  if(!appEnabled) return;
   if(ui.overlayStart.classList.contains("show")) return;
   if(!readyToPlay) return;
 
@@ -1051,7 +968,7 @@ function onPoleTap(poleIndex){
     const size = topDisk(poleIndex);
     if(size === null){ toast("這根柱子空空的～"); return; }
     selected = { fromPole: poleIndex, size };
-    ui.selectInfo.textContent = `已拿起：${size}（${POLE_LABELS[poleIndex]}）`;
+    ui.selectInfo.textContent = `已拿起：${displayDiskNumber(size)}（${POLE_LABELS[poleIndex]}）`;
     sfxPop("pick");
     render();
     return;
@@ -1094,8 +1011,6 @@ function onPoleTap(poleIndex){
 }
 
 function checkWin(){
-  // 目標：全部搬到 C（第 3 柱 index=2）
-  // demo 模式也一樣，最後要全在 C
   if(stacks[2].length !== N) return;
 
   stopTimer();
@@ -1185,9 +1100,7 @@ function rand(){
   audio.seed = (audio.seed * 1103515245 + 12345) & 0x7fffffff;
   return (audio.seed / 0x7fffffff);
 }
-function noteFreq(midi){
-  return 440 * Math.pow(2, (midi - 69) / 12);
-}
+function noteFreq(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
 const CHORDS = [
   [60, 64, 67, 71],
   [57, 60, 64, 67],
@@ -1379,18 +1292,17 @@ function showHowModal(){
 }
 
 /* ===== events ===== */
-ui.btnHow.addEventListener("click", ()=>{ if(appEnabled) showHowModal(); });
+ui.btnHow.addEventListener("click", ()=> showHowModal());
 ui.btnBgm.addEventListener("click", ()=>{
   bgmOn = !bgmOn;
   setBgmButton();
   if(!bgmOn) stopBgm();
   else startBgmIfNeeded();
 });
-ui.btnRestart.addEventListener("click", ()=>{ if(appEnabled) resetGame(N, MODE); });
+ui.btnRestart.addEventListener("click", ()=> resetGame(N, MODE));
 ui.btnClose.addEventListener("click", closeWindow);
 
 ui.btnNew.addEventListener("click", ()=>{
-  if(!appEnabled) return;
   const n = parseInt(ui.level.value,10);
   const mode = ui.startMode.value;
   resetGame(n, mode);
@@ -1398,10 +1310,9 @@ ui.btnNew.addEventListener("click", ()=>{
 
 ui.btnQuickStart.addEventListener("click", ()=>{
   setTutorialLastDate(todayStr());
-  ui.btnStartMore.style.display = "inline-block";
   hideStartOverlay();
   readyToPlay = true;
-  if(isLandscape()) startTimer();
+  startTimer();          // ✅ 不再限制橫向，直向直接開始計時
   startBgmIfNeeded();
   toast("鹿粉集合！開搬～");
 });
@@ -1423,7 +1334,7 @@ ui.btnNext.addEventListener("click", ()=>{
 
 /* ===== boot ===== */
 (function purgeOldLeaderboards(){
-  const today = leaderKey();
+  const today = LS_DAILY_LEADER_PREFIX + todayStr();
   try{
     const del = [];
     for(let i=0;i<localStorage.length;i++){
@@ -1436,8 +1347,6 @@ ui.btnNext.addEventListener("click", ()=>{
 
 (async function main(){
   setBgmButton();
-  updateOrientationGate();
-
   await initLIFF();
 
   ui.todayPill.textContent = "今天";
