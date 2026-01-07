@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>鹿鹿搬運任務｜鹿粉河內塔</title>
+  <title>鹿鹿 × 鹿粉｜河內塔搬運任務</title>
 
-  <!-- LIFF SDK -->
+  <!-- LIFF SDK（支援：只需改一行 LIFF_ID） -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
@@ -15,14 +15,12 @@
       --card:#ffffffcc;
       --text:#12202c;
       --muted:#5b6b7a;
-
       --pink:#ff5fa2;
       --blue:#2b7fff;
-      --mint:#14b86a;
       --gold:#ffb020;
-
       --shadow: 0 12px 34px rgba(0,0,0,.12);
       --radius: 18px;
+      --outlineCoffee:#2b1a08;
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--text); }
@@ -30,16 +28,19 @@
       background: radial-gradient(1200px 600px at 20% 0%, var(--bg1), transparent 60%),
                   radial-gradient(900px 600px at 90% 20%, var(--bg2), transparent 55%),
                   linear-gradient(180deg, #fff, #f8fbff);
-      overflow:hidden;
+      overflow:auto;
     }
+
     .wrap{
-      height:100%;
+      height:auto;
+      min-height:100%;
       display:flex;
       flex-direction:column;
-      padding:14px 14px calc(14px + env(safe-area-inset-bottom));
-      gap:12px;
-      max-width:920px;
+      padding:12px 12px calc(12px + env(safe-area-inset-bottom));
+      gap:10px;
+      max-width:1100px;
       margin:0 auto;
+      min-height:0;
     }
 
     .topbar{
@@ -47,37 +48,27 @@
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px 12px;
+      padding:10px 10px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      flex: 0 0 auto;
+      flex-wrap: wrap;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 220px;
-    }
+    .brand{ display:flex; align-items:center; gap:10px; min-width: 220px; }
     .logo{
       width:44px; height:44px;
       border-radius: 14px;
       background: #fff;
       border:1px solid rgba(0,0,0,.07);
       box-shadow: 0 10px 22px rgba(0,0,0,.08);
-      display:grid;
-      place-items:center;
+      display:grid; place-items:center;
       overflow:hidden;
+      flex: 0 0 auto;
     }
-    .title{
-      display:flex; flex-direction:column; gap:2px;
-      min-width: 160px;
-    }
-    .title h1{
-      margin:0; font-size:16px; letter-spacing:.2px;
-      display:flex; align-items:center; gap:8px;
-      white-space:nowrap;
-    }
+    .title{ display:flex; flex-direction:column; gap:2px; min-width: 150px; }
+    .title h1{ margin:0; font-size:15px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
     .badge{
       font-size:12px;
       padding:2px 8px;
@@ -87,23 +78,24 @@
       border: 1px solid rgba(43,127,255,.25);
     }
     .sub{
-      font-size:12px; color:var(--muted);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      max-width: 320px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 360px;
     }
 
-    .stats{
+    .right{
       display:flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       flex-wrap:wrap;
       justify-content:flex-end;
       margin-left:auto;
     }
     .chip{
-      display:flex;
-      align-items:center;
-      gap:6px;
+      display:flex; align-items:center; gap:6px;
       padding:8px 10px;
       border-radius: 999px;
       background:#fff;
@@ -112,13 +104,9 @@
       color:var(--muted);
       user-select:none;
     }
-    .chip strong{ color:var(--text); font-weight:800; }
-    .controls{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .chip strong{ color:var(--text); font-weight:900; }
+
+    .controls{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .btn{
       border:0;
       border-radius: 999px;
@@ -130,6 +118,7 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
     }
     .btn.primary{
       background: linear-gradient(135deg, var(--blue), #6aa7ff);
@@ -146,20 +135,23 @@
     .main{
       flex:1;
       display:flex;
-      gap:12px;
-      min-height: 0;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+      overflow:visible;
     }
     .board{
-      flex: 1;
+      flex: 1 1 auto;
       background:var(--card);
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px;
+      padding:10px;
       position:relative;
       display:flex;
       flex-direction:column;
-      min-height: 0;
+      min-height:0;
+      overflow:hidden;
     }
     .boardHeader{
       display:flex;
@@ -167,11 +159,13 @@
       justify-content:space-between;
       gap:10px;
       margin-bottom:8px;
+      flex: 0 0 auto;
     }
     .hint{
       font-size:12px;
       color: var(--muted);
       line-height:1.5;
+      max-width: 70%;
     }
     .hint b{ color: var(--text); }
     .selectInfo{
@@ -179,23 +173,25 @@
       color: var(--muted);
       text-align:right;
       white-space:nowrap;
+      flex: 0 0 auto;
     }
 
     .poles{
-      flex:1;
+      flex:1 1 auto;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
       align-items:stretch;
-      min-height: 0;
+      min-height:0;
     }
+
     .pole{
       position:relative;
       border-radius: 16px;
       background: rgba(255,255,255,.72);
       border:1px dashed rgba(0,0,0,.12);
       overflow:hidden;
-      min-height: 0;
+      min-height:0;
       display:flex;
       flex-direction:column;
       justify-content:flex-end;
@@ -215,15 +211,19 @@
       font-size:12px;
       color: var(--muted);
       display:flex; gap:8px; align-items:center;
-      max-width: 70%;
+      min-width: 0;
     }
     .poleLabel .dot{
       width:8px;height:8px;border-radius:99px;background:rgba(255,95,162,.45);
+      flex: 0 0 auto;
     }
     .poleLabel span.name{
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      min-width:0;
+      font-weight:800;
+      color: var(--text);
     }
     .poleCount{
       font-size:12px;
@@ -233,110 +233,147 @@
     .rod{
       position:absolute;
       left:50%;
-      bottom:16px;
+      bottom:64px;
       width:10px;
-      height: calc(100% - 52px);
+      height: calc(100% - 100px);
       transform: translateX(-50%);
       background: linear-gradient(180deg, rgba(18,32,44,.22), rgba(18,32,44,.06));
       border-radius: 999px;
       pointer-events:none;
     }
-    .base{
+
+    .platform{
       position:absolute;
-      left:10px; right:10px; bottom:10px;
-      height:10px;
+      left:10px; right:10px; bottom:14px;
+      height:16px;
       border-radius:999px;
-      background: rgba(18,32,44,.10);
+      background: linear-gradient(180deg, rgba(18,32,44,.16), rgba(18,32,44,.06));
       pointer-events:none;
     }
+    .pedestal{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform: translateX(-50%);
+      width: min(140px, 88%);
+      height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,176,32,.85), rgba(180,120,0,.85));
+      border: 2px solid rgba(0,0,0,.28);
+      box-shadow: 0 10px 18px rgba(0,0,0,.12);
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+    }
+    .pedestal span{
+      font-weight:1000;
+      font-size:30px;
+      line-height:1;
+      color: rgba(0,0,0,.80);
+      text-shadow: 0 2px 0 rgba(255,255,255,.35);
+      letter-spacing: 1px;
+    }
 
+    /* ✅ 盤子：大在下、小在上（視覺正確） */
     .stack{
       position:relative;
       display:flex;
-      flex-direction:column;
+      flex-direction: column-reverse;
       gap:8px;
-      padding-bottom:8px;
-      min-height: 0;
+      padding-bottom:60px;
+      min-height:0;
     }
 
-    /* 鹿粉徽章（盤子） */
     .disk{
-      height: 28px;
+      height: 30px;
       border-radius: 999px;
-      border:1px solid rgba(0,0,0,.10);
-      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+      border:3px solid var(--outlineCoffee);
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      padding: 0 10px;
+      justify-content:center;
       user-select:none;
       touch-action: manipulation;
       position:relative;
       overflow:hidden;
+      font-weight:1000;
+      color:#fff;
+      text-shadow:
+        0 1px 0 rgba(0,0,0,.25),
+        0 0 6px rgba(255,255,255,.25);
+      font-variant-numeric: tabular-nums;
+      isolation: isolate;
     }
-    .disk:before{
+    .disk.small{ height:28px; }
+
+    /* ✅ 斑點層（每日固定，由 JS 寫入 --spots），避開數字區域 */
+    .disk::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:999px;
+      pointer-events:none;
+      z-index:0;
+      background: var(--spots, none);
+      mix-blend-mode: multiply;
+      opacity: 0;
+    }
+    .disk[data-size="3"]::before{ opacity: .24; } /* 3 盤就是最大盤，給更明顯一點 */
+    .disk::after{
       content:"";
       position:absolute;
       inset:-30px -30px auto auto;
-      width:80px; height:80px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), transparent 60%);
+      width:90px; height:90px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 60%);
       transform: rotate(20deg);
       opacity:.7;
-    }
-    .disk.small{ height:26px; }
-    .disk.selected{
-      outline: 2px solid rgba(43,127,255,.65);
-      transform: translateY(-3px);
-      box-shadow: 0 14px 26px rgba(43,127,255,.18);
-    }
-    .disk .left{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      z-index:1;
-      min-width: 0;
-    }
-    .disk .pin{
-      width:18px;height:18px;border-radius: 6px;
-      background: rgba(255,255,255,.55);
-      border:1px solid rgba(0,0,0,.08);
-      display:grid; place-items:center;
-      font-size:12px;
-    }
-    .disk .txt{
-      font-size:12px;
-      color: rgba(0,0,0,.78);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 180px;
-    }
-    .disk .tag{
-      font-size:11px;
-      padding:4px 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.42);
-      border:1px solid rgba(0,0,0,.08);
-      color: rgba(0,0,0,.70);
-      z-index:1;
-      white-space:nowrap;
+      pointer-events:none;
+      z-index:2;
     }
 
+    /* ✅ 拿起：抖抖（鹿鹿緊張） */
+    @keyframes luluJitter{
+      0%   { transform: translateY(-3px) rotate(0deg) scale(1); }
+      20%  { transform: translateY(-3px) rotate(-1.2deg) scale(1.02); }
+      40%  { transform: translateY(-3px) rotate(1.2deg)  scale(1.02); }
+      60%  { transform: translateY(-3px) rotate(-0.8deg) scale(1.015); }
+      80%  { transform: translateY(-3px) rotate(0.8deg)  scale(1.015); }
+      100% { transform: translateY(-3px) rotate(0deg) scale(1); }
+    }
+    .disk.selected{
+      outline: 3px solid rgba(43,127,255,.65);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 26px rgba(43,127,255,.18);
+      animation: luluJitter .24s ease-in-out infinite;
+      transform-origin: 50% 90%;
+    }
+
+    /* ✅ 通關：最底盤金光閃一下 */
+    @keyframes luluGoldFlash{
+      0%   { filter: brightness(1) saturate(1); box-shadow: 0 10px 18px rgba(0,0,0,.10); }
+      35%  { filter: brightness(1.28) saturate(1.35); box-shadow: 0 0 28px rgba(255,176,32,.60); }
+      70%  { filter: brightness(1.15) saturate(1.15); box-shadow: 0 0 16px rgba(255,176,32,.35); }
+      100% { filter: brightness(1) saturate(1); box-shadow: 0 10px 18px rgba(0,0,0,.10); }
+    }
+    .disk.winFlash{ animation: luluGoldFlash .55s ease-out 1; }
+
     .side{
-      width: 320px;
-      max-width: 46vw;
+      width: 100%;
+      flex: 0 0 auto;
       display:flex;
       flex-direction:column;
-      gap:12px;
-      min-height: 0;
+      gap:10px;
+      min-height:0;
+      overflow:visible;
+      padding-right: 0;
     }
     .card{
       background:var(--card);
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px;
-      min-height: 0;
+      padding:10px;
+      flex: 0 0 auto;
     }
     .card h2{
       margin:0 0 8px;
@@ -367,12 +404,8 @@
     }
     .row:last-child{ border-bottom:0; }
     .row b{ color: var(--text); }
-    .select{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
+
+    .select{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     select{
       padding:10px 12px;
       border-radius: 12px;
@@ -381,10 +414,43 @@
       font-size:13px;
     }
 
+    .leader{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-height: 220px;
+      overflow:auto;
+      padding-right: 4px;
+    }
+    .entry{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 14px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      font-size:12px;
+      color: var(--muted);
+    }
+    .entry .name{
+      max-width: 160px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: var(--text);
+      font-weight:800;
+    }
+    .entry .meta{
+      white-space:nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
     .toast{
       position: fixed;
       left:50%;
-      bottom: calc(14px + env(safe-area-inset-bottom));
+      bottom: calc(12px + env(safe-area-inset-bottom));
       transform: translateX(-50%);
       background: rgba(18,32,44,.92);
       color:#fff;
@@ -394,7 +460,7 @@
       opacity:0;
       pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index: 50;
+      z-index: 200;
       max-width: 92vw;
       white-space:nowrap;
       overflow:hidden;
@@ -405,34 +471,55 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
+    /* overlays：縮小不遮太多 */
     .overlay{
       position:absolute;
       inset:0;
       display:none;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
-      background: rgba(255,255,255,.55);
-      backdrop-filter: blur(8px);
+      padding:10px;
+      background: rgba(18,32,44,.18);
+      backdrop-filter: blur(6px);
       border-radius: var(--radius);
-      z-index: 20;
+      z-index: 100;
     }
     .overlay.show{ display:flex; }
+
     .modal{
-      width:min(560px, 92%);
+      width:min(560px, 96%);
       background:#fff;
-      border-radius: 22px;
+      border-radius: 18px;
       box-shadow: 0 18px 55px rgba(0,0,0,.18);
-      padding:16px;
+      padding:12px;
       border:1px solid rgba(0,0,0,.08);
+      max-height: 52vh;
+      overflow:auto;
     }
-    .modal h3{ margin:0 0 8px; font-size:16px; }
-    .modal p{ margin:0 0 12px; color: var(--muted); font-size:13px; line-height:1.55; }
-    .modal .actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+    .modal h3{ margin:0 0 6px; font-size:16px; display:flex; gap:8px; align-items:center; }
+    .modal p{
+      margin:0 0 10px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      white-space:pre-line;
+    }
+    .modal .actions{
+      display:flex;
+      gap:8px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 8px;
+    }
+    .modal .actions .left{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .modal .actions .right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-left:auto; }
+
     .kpi{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
-      margin:10px 0 12px;
+      margin:10px 0 10px;
     }
     .kpi .box{
       background: rgba(43,127,255,.08);
@@ -445,32 +532,29 @@
       font-size:16px;
       font-weight:900;
       color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
-    .kpi .box .t{
-      font-size:12px;
-      color: var(--muted);
-      margin-top:2px;
-    }
+    .kpi .box .t{ font-size:12px; color: var(--muted); margin-top:2px; }
 
-    @media (max-width: 840px){
-      .main{ flex-direction:column; }
-      .side{ width:100%; max-width:100%; flex-direction:row; }
-      .side .card{ flex:1; }
+    /* ✅ Win：鹿鹿點頭 */
+    .luluNod{ display:flex; justify-content:center; margin: 6px 0 2px; }
+    @keyframes nod{
+      0%   { transform: translateY(0) rotate(0deg); }
+      18%  { transform: translateY(1px) rotate(4deg); }
+      36%  { transform: translateY(0) rotate(0deg); }
+      54%  { transform: translateY(1px) rotate(4deg); }
+      72%  { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(0) rotate(0deg); }
     }
-    @media (max-width: 520px){
-      .side{ flex-direction:column; }
-      .sub{ max-width: 240px; }
-      .disk{ height:26px; }
-    }
+    .luluNod.play{ animation: nod .9s ease-in-out 1; transform-origin: 50% 60%; }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <div class="wrap" id="app">
     <div class="topbar">
       <div class="brand">
         <div class="logo" aria-label="鹿鹿">
-          <!-- 簡單 SVG 鹿鹿頭像 -->
           <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
             <rect x="0" y="0" width="64" height="64" rx="16" fill="#FFF7FB"/>
             <path d="M22 44c0-10 8-18 18-18s18 8 18 18" stroke="#1A2B3A" stroke-width="3" stroke-linecap="round"/>
@@ -488,12 +572,12 @@
         </div>
       </div>
 
-      <div class="stats">
+      <div class="right">
         <div class="chip">步數 <strong id="moves">0</strong></div>
         <div class="chip">時間 <strong id="time">00:00</strong></div>
         <div class="controls">
           <button class="btn" id="btnHow">玩法</button>
-          <button class="btn" id="btnSound">音效：開</button>
+          <button class="btn" id="btnBgm">BGM：開</button>
           <button class="btn danger" id="btnRestart">重來</button>
           <button class="btn primary" id="btnClose">關閉</button>
         </div>
@@ -504,18 +588,51 @@
       <div class="board">
         <div class="boardHeader">
           <div class="hint">
-            鹿粉請幫鹿鹿把「碎片徽章」搬到 <b>第 3 柱（天空裂縫柱）</b>！
-            <br/>操作：點一下徽章「拿起」→ 再點柱子「放下」。規則：<b>小徽章才能放在大徽章上</b>。
+            操作：<b>點一下最上層環拿起 → 再點目標柱放下</b>。把所有環搬到 <b>C</b> 就通關！
           </div>
           <div class="selectInfo" id="selectInfo">未選取</div>
         </div>
 
         <div class="poles" id="poles"></div>
 
+        <!-- 開局玩法視窗（每日快速開始） -->
+        <div class="overlay" id="overlayStart">
+          <div class="modal">
+            <h3 id="startTitle">📖 玩法</h3>
+            <p id="startText">點一下最上層「環」拿起，再點目標柱子放下。\n把全部環搬到 C，就完成任務！</p>
+            <div class="actions">
+              <div class="left">
+                <button class="btn" id="btnStartMore">再看一次玩法</button>
+              </div>
+              <div class="right">
+                <button class="btn primary" id="btnQuickStart">快速開始</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Win -->
         <div class="overlay" id="overlayWin">
           <div class="modal">
-            <h3>🎉 任務完成！鹿鹿超安心</h3>
+            <h3>🎉 任務完成！鹿鹿點頭中</h3>
+
+            <div class="luluNod" id="luluNod" aria-label="鹿鹿點頭">
+              <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                <circle cx="32" cy="34" r="18" fill="#FFE100" stroke="#2b1a08" stroke-width="3"/>
+                <path d="M22 21c-2-6-8-8-13-5" stroke="#7A3F12" stroke-width="5" stroke-linecap="round"/>
+                <path d="M42 21c2-6 8-8 13-5" stroke="#7A3F12" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="14" cy="16" r="5" fill="#7A3F12" stroke="#2b1a08" stroke-width="3"/>
+                <circle cx="50" cy="16" r="5" fill="#7A3F12" stroke="#2b1a08" stroke-width="3"/>
+                <circle cx="26" cy="33" r="3.2" fill="#2b1a08"/>
+                <circle cx="38" cy="33" r="3.2" fill="#2b1a08"/>
+                <circle cx="20" cy="39" r="3.8" fill="#FF6A6A" opacity=".85" stroke="#2b1a08" stroke-width="2"/>
+                <circle cx="44" cy="39" r="3.8" fill="#FF6A6A" opacity=".85" stroke="#2b1a08" stroke-width="2"/>
+                <path d="M26 44c4 3 8 3 12 0" stroke="#2b1a08" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+
             <p id="winText">你完成了搬運。</p>
+
             <div class="kpi">
               <div class="box">
                 <div class="v" id="kpiMoves">0</div>
@@ -527,12 +644,17 @@
               </div>
               <div class="box">
                 <div class="v" id="kpiBest">—</div>
-                <div class="t">最佳</div>
+                <div class="t">今日最佳</div>
               </div>
             </div>
             <div class="actions">
-              <button class="btn" id="btnShare">分享</button>
-              <button class="btn primary" id="btnNext">下一關</button>
+              <div class="left">
+                <button class="btn" id="btnShare">分享</button>
+              </div>
+              <div class="right">
+                <button class="btn" id="btnAgain">再玩一次</button>
+                <button class="btn primary" id="btnNext">下一關</button>
+              </div>
             </div>
           </div>
         </div>
@@ -540,36 +662,44 @@
 
       <div class="side">
         <div class="card">
-          <h2>關卡 <span class="pill">鹿粉挑戰</span></h2>
+          <h2>關卡 <span class="pill">3 盤精簡版</span></h2>
+
           <div class="row">
-            <span>徽章數（盤子）</span>
+            <span>盤子數</span>
+            <span><b id="levelFixed">3</b></span>
+          </div>
+
+          <div class="row">
+            <span>開局</span>
             <span class="select">
-              <select id="level">
-                <option value="3">3（暖身）</option>
-                <option value="4">4</option>
-                <option value="5" selected>5（標準）</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8（裂縫級）</option>
+              <select id="startMode">
+                <option value="standard" selected>標準（全在 A）</option>
+                <option value="demo">示範（A:3，B:1，C:2）</option>
               </select>
               <button class="btn" id="btnNew">開始</button>
             </span>
           </div>
+
           <div class="row">
-            <span>理論最少步數</span>
+            <span>最少步數</span>
             <span><b id="minMoves">—</b></span>
-          </div>
-          <div class="row">
-            <span>最佳紀錄（此關）</span>
-            <span><b id="best">—</b></span>
           </div>
         </div>
 
         <div class="card">
-          <h2>任務提示</h2>
-          <div class="row"><span>目標</span><span><b>全部移到第 3 柱</b></span></div>
-          <div class="row"><span>操作</span><span><b>徽章 → 柱子</b></span></div>
-          <div class="row"><span>規則</span><span><b>小放大上</b></span></div>
+          <h2>今日排行榜 <span class="pill" id="todayPill">今天</span></h2>
+          <div class="row">
+            <span>僅保留今日紀錄</span>
+            <span><b id="todayKey">—</b></span>
+          </div>
+          <div class="leader" id="leader"></div>
+        </div>
+
+        <div class="card">
+          <h2>小提醒</h2>
+          <div class="row"><span>目標</span><span><b>全部搬到 C</b></span></div>
+          <div class="row"><span>柱子</span><span><b>A / B / C</b></span></div>
+          <div class="row"><span>BGM</span><span><b>程式生成（免音檔）</b></span></div>
         </div>
       </div>
     </div>
@@ -578,105 +708,273 @@
   <div class="toast" id="toast"></div>
 
 <script>
-/** 鹿鹿 × 鹿粉 河內塔（LIFF） */
-const LS_BEST_PREFIX = "lulu_hanoi_best_"; // lulu_hanoi_best_5 => {bestMoves,bestTimeSec}
+/* ========= LIFF：只改這一行 ========= */
+const LIFF_ID = "2008838401-Ss5SClrX";
+/* ====================================== */
+
+const LS_TUTORIAL_LAST_DATE = "rr_tutorial_last_date";
+const LS_DAILY_LEADER_PREFIX = "lulu_hanoi_leader_"; // + YYYY-MM-DD
+const LS_DAILY_SPOTS_PREFIX  = "lulu_hanoi_spots_";  // + YYYY-MM-DD
+
+const POLE_LABELS = ["A","B","C"];
 
 const ui = {
-  userLine: document.getElementById("userLine"),
   modeBadge: document.getElementById("modeBadge"),
-  poles: document.getElementById("poles"),
+  userLine: document.getElementById("userLine"),
+
   moves: document.getElementById("moves"),
   time: document.getElementById("time"),
   selectInfo: document.getElementById("selectInfo"),
-  level: document.getElementById("level"),
+
+  startMode: document.getElementById("startMode"),
   minMoves: document.getElementById("minMoves"),
-  best: document.getElementById("best"),
-  toast: document.getElementById("toast"),
+
+  poles: document.getElementById("poles"),
+
+  overlayStart: document.getElementById("overlayStart"),
+  startTitle: document.getElementById("startTitle"),
+  startText: document.getElementById("startText"),
+  btnQuickStart: document.getElementById("btnQuickStart"),
+  btnStartMore: document.getElementById("btnStartMore"),
+
   overlayWin: document.getElementById("overlayWin"),
   winText: document.getElementById("winText"),
   kpiMoves: document.getElementById("kpiMoves"),
   kpiTime: document.getElementById("kpiTime"),
   kpiBest: document.getElementById("kpiBest"),
+
   btnHow: document.getElementById("btnHow"),
-  btnSound: document.getElementById("btnSound"),
+  btnBgm: document.getElementById("btnBgm"),
   btnRestart: document.getElementById("btnRestart"),
   btnClose: document.getElementById("btnClose"),
   btnNew: document.getElementById("btnNew"),
   btnShare: document.getElementById("btnShare"),
   btnNext: document.getElementById("btnNext"),
+  btnAgain: document.getElementById("btnAgain"),
+
+  toast: document.getElementById("toast"),
+  leader: document.getElementById("leader"),
+  todayPill: document.getElementById("todayPill"),
+  todayKey: document.getElementById("todayKey"),
 };
 
-const POLE_NAMES = ["樹屋柱", "補給柱", "天空裂縫柱"];
-
-let N = parseInt(ui.level.value, 10);
-let stacks = [[], [], []]; // disk sizes (1 small .. N big). top is last.
-let selected = null; // {fromPole, size}
+let N = 3;                      // ✅ 固定 3 盤
+let MODE = ui.startMode.value;  // standard | demo
+let stacks = [[],[],[]];
+let selected = null;
 let moves = 0;
-
 let timer = null;
 let startAt = null;
 let elapsedSec = 0;
 
-let soundOn = true;
-let audioCtx = null;
+let readyToPlay = false;
+let displayName = "鹿粉";
 
+/* ===== helpers ===== */
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
 function fmtTime(sec){
   sec = Math.max(0, sec|0);
   const mm = String(Math.floor(sec/60)).padStart(2,"0");
   const ss = String(sec%60).padStart(2,"0");
   return `${mm}:${ss}`;
 }
-
 function toast(msg){
   ui.toast.textContent = msg;
   ui.toast.classList.add("show");
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>ui.toast.classList.remove("show"), 1100);
 }
-
 function minMovesFor(n){ return (2 ** n) - 1; }
+function displayDiskNumber(size){ return size; } // ✅ 數字越大盤越大（正確直覺）
 
-function getBest(n){
-  try{
-    const raw = localStorage.getItem(LS_BEST_PREFIX + n);
-    if(!raw) return null;
-    const obj = JSON.parse(raw);
-    if(!obj) return null;
-    return { bestMoves: Number(obj.bestMoves), bestTimeSec: Number(obj.bestTimeSec) };
-  }catch{ return null; }
+/* ===== ✅ Daily spots (same day fixed) ===== */
+let dailySpotsCache = null;
+
+function mulberry32(seed){
+  return function(){
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
-function setBest(n, bestMoves, bestTimeSec){
-  localStorage.setItem(LS_BEST_PREFIX + n, JSON.stringify({ bestMoves, bestTimeSec }));
-}
-function renderBest(){
-  ui.minMoves.textContent = String(minMovesFor(N));
-  const b = getBest(N);
-  ui.best.textContent = (!b || !isFinite(b.bestMoves) || !isFinite(b.bestTimeSec))
-    ? "—"
-    : `${b.bestMoves} 步 / ${fmtTime(b.bestTimeSec)}`;
+function hashStrToSeed(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }
 
-function ensureAudio(){
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+/* ✅ 3盤版：最大盤就是 3 → 直接套「主斑」風格，並避開中央數字 */
+function generateSpotsForSize(day, size){
+  const seed = hashStrToSeed(`${day}|size:${size}|lulu3`);
+  const rnd = mulberry32(seed);
+
+  const isMax = (size === 3);
+  const count = isMax ? 12 : 0;      // 只讓最大盤有斑點（更像身體主斑）
+  const baseR = 13;                 // 斑點偏大
+  const avoidRx = 18, avoidRy = 22; // 中央避讓（避免蓋數字）
+  const marginX = 10, marginY = 16;
+
+  const layers = [];
+  let attempts = 0;
+
+  while(layers.length < count && attempts < 140){
+    attempts++;
+
+    const x = Math.round(marginX + rnd() * (100 - marginX*2));
+    const y = Math.round(marginY + rnd() * (100 - marginY*2));
+
+    const dx = x - 50, dy = y - 50;
+    const inAvoid = (dx*dx)/(avoidRx*avoidRx) + (dy*dy)/(avoidRy*avoidRy) < 1;
+    if(inAvoid) continue;
+
+    const r = Math.round(baseR * (0.8 + rnd()*0.9)); // 大顆
+    const alpha = 0.40 + rnd()*0.10;
+    const c = (layers.length % 2 === 0)
+      ? `rgba(74,34,6,${alpha.toFixed(3)})`
+      : `rgba(122,63,18,${(alpha*0.95).toFixed(3)})`;
+
+    layers.push(`radial-gradient(circle at ${x}% ${y}%, ${c} 0 ${r}px, transparent ${r+1}px)`);
+  }
+
+  // 主斑兩顆（更像鹿鹿身體）
+  layers.push(
+    `radial-gradient(circle at 24% 64%, rgba(74,34,6,0.46) 0 18px, transparent 19px)`,
+    `radial-gradient(circle at 76% 58%, rgba(122,63,18,0.44) 0 17px, transparent 18px)`
+  );
+
+  return layers.join(", ");
 }
-function popSfx(kind){
-  if(!soundOn) return;
+
+function loadOrCreateDailySpots(){
+  const day = todayStr();
+  if(dailySpotsCache && dailySpotsCache.day === day) return dailySpotsCache.map;
+
+  const key = LS_DAILY_SPOTS_PREFIX + day;
   try{
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "sine";
-    const f = kind==="pick" ? 520 : (kind==="drop" ? 420 : 320);
-    o.frequency.setValueAtTime(f, t);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.10, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(t); o.stop(t + 0.13);
+    const raw = localStorage.getItem(key);
+    if(raw){
+      const obj = JSON.parse(raw);
+      if(obj && typeof obj === "object"){
+        dailySpotsCache = { day, map: obj };
+        return obj;
+      }
+    }
   }catch{}
+
+  const map = { "3": generateSpotsForSize(day, 3) };
+  try{ localStorage.setItem(key, JSON.stringify(map)); }catch{}
+  dailySpotsCache = { day, map };
+  return map;
+}
+function getDailySpots(size){
+  if(size !== 3) return "";
+  const map = loadOrCreateDailySpots();
+  return map["3"] || "";
 }
 
+/* ===== Daily tutorial gating ===== */
+function getTutorialLastDate(){
+  try{ return localStorage.getItem(LS_TUTORIAL_LAST_DATE) || ""; }catch{ return ""; }
+}
+function setTutorialLastDate(d){
+  try{ localStorage.setItem(LS_TUTORIAL_LAST_DATE, d); }catch{}
+}
+function showStartOverlay(){
+  ui.overlayWin.classList.remove("show");
+  ui.overlayStart.classList.add("show");
+
+  const today = todayStr();
+  const seenToday = (getTutorialLastDate() === today);
+
+  if(!seenToday){
+    ui.startTitle.textContent = "📖 玩法";
+    ui.startText.textContent = "點一下最上層「環」拿起，再點目標柱子放下。\n把全部環搬到 C，就完成任務！";
+    ui.btnStartMore.style.display = "inline-block";
+  }else{
+    ui.startTitle.textContent = "🦒 今天繼續搬運";
+    ui.startText.textContent = "按右下角「快速開始」立刻開玩。";
+    ui.btnStartMore.style.display = "inline-block";
+  }
+}
+function hideStartOverlay(){ ui.overlayStart.classList.remove("show"); }
+
+/* ===== Daily leaderboard ===== */
+function leaderKey(){ return LS_DAILY_LEADER_PREFIX + todayStr(); }
+function loadLeaders(){
+  const key = leaderKey();
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return [];
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr)) return [];
+    return arr
+      .filter(x => x && typeof x === "object")
+      .map(x => ({
+        name: String(x.name || "鹿粉").slice(0, 24),
+        moves: Number(x.moves),
+        timeSec: Number(x.timeSec),
+        level: Number(x.level),
+        mode: String(x.mode || "standard"),
+        ts: Number(x.ts || 0),
+      }))
+      .filter(x => isFinite(x.moves) && isFinite(x.timeSec) && isFinite(x.level));
+  }catch{ return []; }
+}
+function saveLeaders(arr){
+  try{ localStorage.setItem(leaderKey(), JSON.stringify(arr)); }catch{}
+}
+function addLeaderEntry(entry){
+  const arr = loadLeaders();
+  arr.push(entry);
+  arr.sort((a,b)=>{
+    if(a.moves !== b.moves) return a.moves - b.moves;
+    if(a.timeSec !== b.timeSec) return a.timeSec - b.timeSec;
+    return (a.ts||0) - (b.ts||0);
+  });
+  saveLeaders(arr.slice(0,10));
+  renderLeaders();
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function renderLeaders(){
+  const list = loadLeaders();
+  ui.leader.innerHTML = "";
+  ui.todayKey.textContent = todayStr();
+
+  if(list.length === 0){
+    const e = document.createElement("div");
+    e.className = "entry";
+    e.innerHTML = `<span class="name">今天還沒人通關</span><span class="meta">先當第一名！</span>`;
+    ui.leader.appendChild(e);
+    ui.kpiBest.textContent = "—";
+    return;
+  }
+
+  list.forEach((x, idx)=>{
+    const e = document.createElement("div");
+    e.className = "entry";
+    const rank = idx===0 ? "🥇" : idx===1 ? "🥈" : idx===2 ? "🥉" : `#${idx+1}`;
+    const modeTag = (x.mode === "demo") ? "示範" : "標準";
+    e.innerHTML = `
+      <span class="name">${rank} ${escapeHtml(x.name)}</span>
+      <span class="meta">${x.moves}步 · ${fmtTime(x.timeSec)} · ${x.level}盤 · ${modeTag}</span>
+    `;
+    ui.leader.appendChild(e);
+  });
+
+  const best = list[0];
+  ui.kpiBest.textContent = `${best.moves} / ${fmtTime(best.timeSec)}`;
+}
+
+/* ===== Game ===== */
 function startTimer(){
   stopTimer();
   startAt = Date.now() - elapsedSec*1000;
@@ -689,10 +987,9 @@ function stopTimer(){
   if(timer){ clearInterval(timer); timer=null; }
 }
 
-function resetGame(n){
-  N = n;
-  stacks = [[], [], []];
-  for(let s=n; s>=1; s--) stacks[0].push(s);
+function resetGame(mode){
+  MODE = mode;
+  stacks = [[],[],[]];
   selected = null;
   moves = 0;
   elapsedSec = 0;
@@ -702,85 +999,37 @@ function resetGame(n){
   ui.selectInfo.textContent = "未選取";
   ui.overlayWin.classList.remove("show");
 
-  renderBest();
+  ui.minMoves.textContent = String(minMovesFor(N));
+
+  if(MODE === "demo"){
+    stacks[0].push(3);
+    stacks[1].push(1);
+    stacks[2].push(2);
+  }else{
+    stacks[0].push(3,2,1);
+  }
+
   render();
-  startTimer();
-  toast(`鹿粉集合！${N} 枚碎片徽章開搬`);
+  renderLeaders();
+
+  readyToPlay = false;
+  stopTimer();
+  showStartOverlay();
 }
 
 function diskWidthPercent(size){
-  const min = 36, max = 96;
+  const min = 42, max = 94;
   const t = (size-1)/(N-1 || 1);
   return min + (max-min)*t;
 }
-function diskBg(size){
-  // 粉→藍→金 的柔和漸層（依大小變色）
-  const t = (size-1)/(N-1 || 1);
-  const h = 330 + t*110; // 330(粉紫) -> 80(金)
-  return `linear-gradient(135deg,
-    hsla(${h}, 95%, 70%, .95),
-    hsla(${h+18}, 95%, 80%, .95)
-  )`;
-}
-
-function render(){
-  ui.poles.innerHTML = "";
-  for(let i=0;i<3;i++){
-    const pole = document.createElement("div");
-    pole.className = "pole";
-    pole.dataset.pole = String(i);
-
-    const poleTop = document.createElement("div");
-    poleTop.className = "poleTop";
-    poleTop.innerHTML = `
-      <div class="poleLabel">
-        <span class="dot"></span>
-        <span class="name">第 ${i+1} 柱｜${POLE_NAMES[i]}</span>
-      </div>
-      <div class="poleCount">${stacks[i].length} 枚</div>
-    `;
-
-    const rod = document.createElement("div");
-    rod.className = "rod";
-    const base = document.createElement("div");
-    base.className = "base";
-
-    const stack = document.createElement("div");
-    stack.className = "stack";
-
-    for(const size of stacks[i]){
-      const d = document.createElement("div");
-      d.className = "disk" + (size<=2 ? " small": "");
-      d.style.width = diskWidthPercent(size) + "%";
-      d.style.background = diskBg(size);
-      d.dataset.size = String(size);
-      d.dataset.pole = String(i);
-
-      const isTop = (size === stacks[i][stacks[i].length-1]);
-      const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
-      if(isSelected) d.classList.add("selected");
-
-      const label = size===1 ? "最小碎片" : (size===N ? "最大碎片" : `碎片-${size}`);
-      d.innerHTML = `
-        <div class="left">
-          <div class="pin">🦒</div>
-          <div class="txt">鹿粉徽章｜${label}</div>
-        </div>
-        <div class="tag">${size}號</div>
-      `;
-
-      d.addEventListener("click",(e)=>{ e.stopPropagation(); onPoleTap(i); });
-      stack.appendChild(d);
-    }
-
-    pole.appendChild(poleTop);
-    pole.appendChild(rod);
-    pole.appendChild(base);
-    pole.appendChild(stack);
-
-    pole.addEventListener("click", ()=> onPoleTap(i));
-    ui.poles.appendChild(pole);
-  }
+function diskColor(size){
+  const colors = {
+    1: ["#FFF36A", "#FFE033"],
+    2: ["#FFE100", "#FFC400"],
+    3: ["#7A3F12", "#4A2206"], // ✅ 最大盤：咖啡底
+  };
+  const [c1, c2] = colors[size] || colors[3];
+  return `linear-gradient(180deg, ${c1}, ${c2})`;
 }
 
 function topDisk(poleIndex){
@@ -793,16 +1042,73 @@ function canPlace(size, poleIndex){
   return size < top;
 }
 
+function render(){
+  ui.poles.innerHTML = "";
+
+  for(let i=0;i<3;i++){
+    const pole = document.createElement("div");
+    pole.className = "pole";
+
+    const poleTop = document.createElement("div");
+    poleTop.className = "poleTop";
+    poleTop.innerHTML = `
+      <div class="poleLabel">
+        <span class="dot"></span>
+        <span class="name">${POLE_LABELS[i]}</span>
+      </div>
+      <div class="poleCount">${stacks[i].length} 枚</div>
+    `;
+
+    const rod = document.createElement("div"); rod.className = "rod";
+    const platform = document.createElement("div"); platform.className = "platform";
+    const pedestal = document.createElement("div"); pedestal.className = "pedestal";
+    pedestal.innerHTML = `<span>${POLE_LABELS[i]}</span>`;
+
+    const stack = document.createElement("div"); stack.className = "stack";
+
+    for(const size of stacks[i]){
+      const d = document.createElement("div");
+      d.className = "disk" + (size<=2 ? " small": "");
+      d.style.width = diskWidthPercent(size) + "%";
+      d.style.background = diskColor(size);
+      d.textContent = String(displayDiskNumber(size));
+      d.dataset.pole = String(i);
+      d.dataset.size = String(size);
+
+      // ✅ 最大盤(3)每日固定斑點，並避開中央數字
+      const spots = getDailySpots(size);
+      if(spots) d.style.setProperty("--spots", spots);
+      else d.style.removeProperty("--spots");
+
+      const isTop = (size === stacks[i][stacks[i].length-1]);
+      const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
+      if(isSelected) d.classList.add("selected");
+
+      d.addEventListener("click",(e)=>{ e.stopPropagation(); onPoleTap(i); });
+      stack.appendChild(d);
+    }
+
+    pole.appendChild(poleTop);
+    pole.appendChild(rod);
+    pole.appendChild(platform);
+    pole.appendChild(pedestal);
+    pole.appendChild(stack);
+
+    pole.addEventListener("click", ()=> onPoleTap(i));
+    ui.poles.appendChild(pole);
+  }
+}
+
 function onPoleTap(poleIndex){
+  if(ui.overlayStart.classList.contains("show")) return;
+  if(!readyToPlay) return;
+
   if(!selected){
     const size = topDisk(poleIndex);
-    if(size === null){
-      toast("這根柱子目前空空的～");
-      return;
-    }
+    if(size === null){ toast("這根柱子空空的～"); return; }
     selected = { fromPole: poleIndex, size };
-    ui.selectInfo.textContent = `已拿起：${size}號（${POLE_NAMES[poleIndex]}）`;
-    popSfx("pick");
+    ui.selectInfo.textContent = `已拿起：${displayDiskNumber(size)}（${POLE_LABELS[poleIndex]}）`;
+    sfxPop("pick");
     render();
     return;
   }
@@ -816,8 +1122,8 @@ function onPoleTap(poleIndex){
   }
 
   if(!canPlace(size, poleIndex)){
-    toast("規則：小徽章才能放在大徽章上！");
-    popSfx("bad");
+    toast("放不下：先把小的放上面～");
+    sfxPop("bad");
     return;
   }
 
@@ -837,7 +1143,7 @@ function onPoleTap(poleIndex){
   ui.moves.textContent = String(moves);
   selected = null;
   ui.selectInfo.textContent = "未選取";
-  popSfx("drop");
+  sfxPop("drop");
   render();
 
   checkWin();
@@ -847,117 +1153,334 @@ function checkWin(){
   if(stacks[2].length !== N) return;
 
   stopTimer();
+
+  // ✅ 通關：最底盤（3）金光閃一下
+  requestAnimationFrame(()=>{
+    const el = document.querySelector(`.disk[data-pole="2"][data-size="3"]`);
+    if(el){
+      el.classList.remove("winFlash");
+      void el.offsetWidth;
+      el.classList.add("winFlash");
+    }
+  });
+
   ui.overlayWin.classList.add("show");
 
+  // ✅ 鹿鹿點頭
+  const nod = document.getElementById("luluNod");
+  if(nod){
+    nod.classList.remove("play");
+    void nod.offsetWidth;
+    nod.classList.add("play");
+  }
+
   const theoretical = minMovesFor(N);
-  const rank = moves === theoretical ? "完美鹿粉！" : (moves <= theoretical + 8 ? "神級鹿粉！" : "合格鹿粉！");
+  const rank = moves === theoretical ? "完美鹿粉！" : (moves <= theoretical + 2 ? "神級鹿粉！" : "合格鹿粉！");
   ui.winText.textContent =
-    `你用 ${moves} 步、${fmtTime(elapsedSec)} 把碎片徽章全送到「天空裂縫柱」✨` +
-    `\n${rank}（理論最少：${theoretical} 步）`;
+    `你用 ${moves} 步、${fmtTime(elapsedSec)} 完成「${N} 盤搬運」✨\n${rank}（最少：${theoretical} 步）`;
 
   ui.kpiMoves.textContent = String(moves);
   ui.kpiTime.textContent = fmtTime(elapsedSec);
 
-  const b = getBest(N);
-  let isNew = false;
-  if(!b || !isFinite(b.bestMoves) || !isFinite(b.bestTimeSec)){
-    setBest(N, moves, elapsedSec);
-    isNew = true;
-  }else{
-    const better = (moves < b.bestMoves) || (moves === b.bestMoves && elapsedSec < b.bestTimeSec);
-    if(better){ setBest(N, moves, elapsedSec); isNew = true; }
+  addLeaderEntry({
+    name: displayName || "鹿粉",
+    moves,
+    timeSec: elapsedSec,
+    level: N,
+    mode: MODE,
+    ts: Date.now()
+  });
+
+  renderLeaders();
+}
+
+/* ===== Procedural chill BGM + 點擊泡泡 ===== */
+let bgmOn = true;
+let audio = { ctx:null, master:null, musicGain:null, noiseGain:null, lp:null, started:false, nextNoteT:0, timer:null, seed:0 };
+function ensureAudio(){
+  if(audio.ctx) return;
+  audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audio.master = audio.ctx.createGain();
+  audio.master.gain.value = 0.55;
+  audio.master.connect(audio.ctx.destination);
+
+  audio.lp = audio.ctx.createBiquadFilter();
+  audio.lp.type = "lowpass";
+  audio.lp.frequency.value = 1600;
+  audio.lp.Q.value = 0.6;
+
+  audio.musicGain = audio.ctx.createGain();
+  audio.musicGain.gain.value = 0.85;
+
+  audio.noiseGain = audio.ctx.createGain();
+  audio.noiseGain.gain.value = 0.20;
+
+  audio.musicGain.connect(audio.lp);
+  audio.noiseGain.connect(audio.lp);
+  audio.lp.connect(audio.master);
+}
+function setBgmButton(){ ui.btnBgm.textContent = `BGM：${bgmOn ? "開" : "關"}`; }
+function startBgmIfNeeded(){
+  if(!bgmOn) return;
+  ensureAudio();
+  if(audio.ctx.state === "suspended") audio.ctx.resume().catch(()=>{});
+  if(audio.started) return;
+  audio.started = true;
+  audio.seed = (Date.now() % 9973) | 0;
+  audio.nextNoteT = audio.ctx.currentTime + 0.06;
+  audio.timer = setInterval(scheduler, 100);
+}
+function stopBgm(){
+  if(audio.timer){ clearInterval(audio.timer); audio.timer=null; }
+  audio.started = false;
+}
+function scheduler(){
+  if(!audio.ctx) return;
+  const lookAhead = 0.35;
+  while(audio.nextNoteT < audio.ctx.currentTime + lookAhead){
+    scheduleStep(audio.nextNoteT);
+    audio.nextNoteT += stepDur();
   }
-  const nb = getBest(N);
-  ui.kpiBest.textContent = nb ? `${nb.bestMoves} / ${fmtTime(nb.bestTimeSec)}` : "—";
-  renderBest();
+}
+function bpm(){ return 82; }           // 3盤版稍微更輕快
+function stepDur(){ return 60 / bpm(); }
+function rand(){
+  audio.seed = (audio.seed * 1103515245 + 12345) & 0x7fffffff;
+  return (audio.seed / 0x7fffffff);
+}
+function noteFreq(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
+const CHORDS = [
+  [60, 64, 67, 71],
+  [57, 60, 64, 67],
+  [62, 65, 69, 72],
+  [55, 59, 62, 65],
+];
+let stepCount = 0;
 
-  if(isNew) toast("🏆 新最佳紀錄！鹿鹿點頭中");
+function scheduleStep(t){
+  const ctx = audio.ctx;
+  const bar = Math.floor(stepCount / 4) % CHORDS.length;
+  const chord = CHORDS[bar];
+
+  if(stepCount % 2 === 0){
+    chord.forEach((m, i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "triangle";
+      o.detune.setValueAtTime((i - 1.5) * 3, t);
+      o.frequency.setValueAtTime(noteFreq(m - 12), t);
+
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.045, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.70);
+
+      o.connect(g);
+      g.connect(audio.musicGain);
+      o.start(t);
+      o.stop(t + 0.75);
+    });
+  }
+
+  if(stepCount % 4 === 0){
+    const root = chord[0] - 24;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const f = ctx.createBiquadFilter();
+    o.type = "sine";
+    o.frequency.setValueAtTime(noteFreq(root), t);
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(180, t);
+
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.085, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.33);
+
+    o.connect(f); f.connect(g); g.connect(audio.musicGain);
+    o.start(t); o.stop(t + 0.34);
+  }
+
+  if(stepCount % 2 === 1){
+    noiseTick(t, 0.04, 2800 + rand()*700, 0.045);
+  }
+
+  if(stepCount % 4 === 0){ kick(t); }
+
+  stepCount++;
+}
+function noiseBuffer(){
+  const ctx = audio.ctx;
+  const len = ctx.sampleRate * 0.2;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<len;i++){
+    data[i] = (Math.random()*2-1) * (0.9 - i/len);
+  }
+  return buf;
+}
+function noiseTick(t, dur, cutoff, amp){
+  const ctx = audio.ctx;
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuffer();
+  const f = ctx.createBiquadFilter();
+  f.type = "highpass";
+  f.frequency.setValueAtTime(cutoff, t);
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(amp, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  src.connect(f); f.connect(g); g.connect(audio.noiseGain);
+  src.start(t);
+  src.stop(t + dur + 0.02);
+}
+function kick(t){
+  const ctx = audio.ctx;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(135, t);
+  o.frequency.exponentialRampToValueAtTime(55, t + 0.085);
+
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.14, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+
+  o.connect(g); g.connect(audio.musicGain);
+  o.start(t);
+  o.stop(t + 0.13);
 }
 
-function showHow(){
-  alert(
-`【鹿鹿搬運任務｜玩法】
-1) 點一下柱子：拿起該柱最上層「鹿粉徽章」
-2) 再點目標柱：把徽章放下
-
-規則：小徽章才能放在大徽章上
-目標：把全部 ${N} 枚徽章搬到第 3 柱（天空裂縫柱）`
-  );
+/* ✅ 點擊回饋音效（泡泡） */
+function sfxPop(kind){
+  if(!bgmOn) return;
+  ensureAudio();
+  const ctx = audio.ctx;
+  const t = ctx.currentTime;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  const f = kind==="pick" ? 560 : (kind==="drop" ? 440 : 320);
+  o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.038, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
+  o.connect(g); g.connect(audio.master);
+  o.start(t); o.stop(t + 0.11);
 }
 
+/* ===== LIFF init ===== */
 async function initLIFF(){
-  // TODO：部署後換成你的 LIFF ID
-  const LIFF_ID = "2008836744-mte99j4K";
-
   const inLineUA = /Line/i.test(navigator.userAgent);
-
   try{
-    if(window.liff && LIFF_ID && LIFF_ID !== "PUT_YOUR_LIFF_ID_HERE"){
+    if(window.liff && LIFF_ID){
       await liff.init({ liffId: LIFF_ID });
       ui.modeBadge.textContent = liff.isInClient() ? "LINE" : "WEB";
       if(liff.isLoggedIn()){
         const p = await liff.getProfile();
-        ui.userLine.textContent = `Hi ${p.displayName}｜鹿粉請就位 🦒✨`;
+        displayName = p.displayName || "鹿粉";
+        ui.userLine.textContent = `Hi ${displayName}｜鹿粉請就位 🦒✨`;
       }else{
+        displayName = "鹿粉";
         ui.userLine.textContent = "未登入（仍可直接玩）";
       }
-    }else{
-      ui.modeBadge.textContent = inLineUA ? "LINE" : "WEB";
-      ui.userLine.textContent = inLineUA ? "在 LINE 內開啟 ✅（部署後可顯示名稱）" : "一般瀏覽器模式";
+      return;
     }
-  }catch{
-    ui.modeBadge.textContent = "WEB";
-    ui.userLine.textContent = "LIFF 初始化失敗，但仍可遊玩";
-  }
+  }catch{}
+  ui.modeBadge.textContent = inLineUA ? "LINE" : "WEB";
+  displayName = "鹿粉";
+  ui.userLine.textContent = inLineUA ? "在 LINE 內開啟 ✅" : "一般瀏覽器模式";
 }
 
 function closeWindow(){
-  if(window.liff && liff.isInClient && liff.isInClient()){
-    liff.closeWindow();
-  }else{
-    toast("非 LINE 內，無法自動關閉");
-  }
+  if(window.liff && liff.isInClient && liff.isInClient()) liff.closeWindow();
+  else toast("非 LINE 內，無法自動關閉");
 }
-
 async function shareResult(){
-  const text = `🦒✨ 我剛在「鹿鹿搬運任務（${N} 枚）」用 ${moves} 步、${fmtTime(elapsedSec)} 通關！鹿粉報到～`;
+  const modeTag = (MODE === "demo") ? "示範" : "標準";
+  const text = `🦒✨ ${displayName} 完成「鹿鹿搬運任務」：${N}盤／${moves}步／${fmtTime(elapsedSec)}（${modeTag}）！`;
   try{
     if(window.liff && liff.isApiAvailable && liff.isApiAvailable("shareTargetPicker")){
       await liff.shareTargetPicker([{ type:"text", text }]);
       toast("已呼叫分享");
     }else{
       await navigator.clipboard.writeText(text);
-      toast("已複製到剪貼簿");
+      toast("已複製分享文字");
     }
   }catch{
     try{ prompt("複製分享文字：", text); }catch{}
   }
 }
+function showHowModal(){
+  ui.startTitle.textContent = "📖 玩法";
+  ui.startText.textContent = "點一下最上層「環」拿起，再點目標柱子放下。\n把全部環搬到 C，就完成任務！";
+  ui.btnStartMore.style.display = "none";
+  ui.overlayStart.classList.add("show");
+}
 
-/** Events */
-ui.btnHow.addEventListener("click", showHow);
-ui.btnSound.addEventListener("click", ()=>{
-  soundOn = !soundOn;
-  ui.btnSound.textContent = `音效：${soundOn ? "開" : "關"}`;
-  if(soundOn) popSfx("pick");
+/* ===== events ===== */
+ui.btnHow.addEventListener("click", ()=> showHowModal());
+ui.btnBgm.addEventListener("click", ()=>{
+  bgmOn = !bgmOn;
+  setBgmButton();
+  if(!bgmOn) stopBgm();
+  else startBgmIfNeeded();
 });
-ui.btnRestart.addEventListener("click", ()=> resetGame(N));
+ui.btnRestart.addEventListener("click", ()=> resetGame(MODE));
 ui.btnClose.addEventListener("click", closeWindow);
-ui.btnNew.addEventListener("click", ()=> resetGame(parseInt(ui.level.value,10)));
-ui.btnNext.addEventListener("click", ()=>{
-  ui.overlayWin.classList.remove("show");
-  const next = Math.min(8, N + 1);
-  ui.level.value = String(next);
-  resetGame(next);
-});
-ui.btnShare.addEventListener("click", shareResult);
 
-/** Start */
+ui.btnNew.addEventListener("click", ()=>{
+  const mode = ui.startMode.value;
+  resetGame(mode);
+});
+
+ui.btnQuickStart.addEventListener("click", ()=>{
+  setTutorialLastDate(todayStr());
+  hideStartOverlay();
+  readyToPlay = true;
+  startTimer();
+  startBgmIfNeeded();
+  toast("鹿粉集合！開搬～");
+});
+ui.btnStartMore.addEventListener("click", ()=>{
+  ui.startTitle.textContent = "📖 玩法";
+  ui.startText.textContent = "點一下最上層「環」拿起，再點目標柱子放下。\n把全部環搬到 C，就完成任務！";
+  ui.btnStartMore.textContent = "再看一次玩法";
+  ui.btnStartMore.style.display = "inline-block";
+});
+
+ui.btnShare.addEventListener("click", shareResult);
+ui.btnAgain.addEventListener("click", ()=>{ ui.overlayWin.classList.remove("show"); resetGame(MODE); });
+ui.btnNext.addEventListener("click", ()=>{
+  // ✅ 3 盤固定：下一關等同再玩一次
+  ui.overlayWin.classList.remove("show");
+  toast("3 盤精簡版：再挑戰一次！");
+  resetGame(MODE);
+});
+
+/* ===== boot ===== */
+(function purgeOldLeaderboards(){
+  const today = LS_DAILY_LEADER_PREFIX + todayStr();
+  try{
+    const del = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith(LS_DAILY_LEADER_PREFIX) && k !== today) del.push(k);
+    }
+    del.forEach(k=> localStorage.removeItem(k));
+  }catch{}
+})();
+
 (async function main(){
+  setBgmButton();
   await initLIFF();
-  renderBest();
-  resetGame(N);
+  ui.todayPill.textContent = "今天";
+  ui.todayKey.textContent = todayStr();
+  loadOrCreateDailySpots();  // ✅ 先生成今日最大盤斑點
+  renderLeaders();
+  resetGame(MODE);
 })();
 </script>
 </body>
 </html>
+
