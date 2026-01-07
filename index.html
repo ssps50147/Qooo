@@ -129,7 +129,6 @@
     }
     .btn:active{ transform: translateY(1px); }
 
-    /* ✅ 直向友好：小螢幕上下排列 */
     .main{
       flex:1;
       display:flex;
@@ -274,7 +273,7 @@
     .stack{
       position:relative;
       display:flex;
-      flex-direction:column;
+      flex-direction:column; /* ✅ 保持 column；順序由 JS 方式A控制 */
       gap:8px;
       padding-bottom:60px;
       min-height:0;
@@ -310,8 +309,8 @@
       pointer-events:none;
       z-index:0;
       background: var(--spots, none);
-      mix-blend-mode: multiply;
-      opacity: var(--spotOpacity, .18);
+      mix-blend-mode: normal; /* ✅ 角色化：像貼紙紅斑 */
+      opacity: var(--spotOpacity, .55);
     }
     /* 高光 */
     .disk::after{
@@ -351,6 +350,18 @@
       100%{ filter:none; box-shadow: 0 10px 18px rgba(0,0,0,.10); }
     }
     .disk.goldFlash{ animation: goldFlash .45s ease-out 1; }
+
+    /* ✅ 動畫時：目的地先隱藏一顆（保留位置） */
+    .disk.ghost{ opacity:0 !important; }
+
+    /* ✅ 飛行盤子（搬運動畫用） */
+    .flyingDisk{
+      position:fixed;
+      left:0; top:0;
+      z-index: 350;
+      pointer-events:none;
+      margin:0;
+    }
 
     .side{
       width: 330px;
@@ -467,7 +478,6 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
-    /* overlays：縮小不遮太多 */
     .overlay{
       position:absolute;
       inset:0;
@@ -532,7 +542,6 @@
     }
     .kpi .box .t{ font-size:12px; color: var(--muted); margin-top:2px; }
 
-    /* ✅ Win：鹿鹿點頭動畫 */
     .luluNod{
       width:86px; height:86px;
       margin: 6px auto 10px;
@@ -549,7 +558,6 @@
     }
     .luluNod.play{ animation: nod .65s ease-out 1; }
 
-    /* ✅ 直向：上下排列，右側面板往下放（可捲） */
     @media (max-width: 900px){
       body{ overflow:auto; }
       .wrap{ height:auto; min-height:100%; }
@@ -631,10 +639,7 @@
         <div class="overlay" id="overlayWin">
           <div class="modal">
             <h3>🎉 任務完成！鹿鹿點頭中</h3>
-
-            <!-- ✅ 4 張頭部樣式隨機（JS 注入） -->
             <div class="luluNod" id="luluNod" aria-label="鹿鹿點頭"></div>
-
             <p id="winText">你完成了搬運。</p>
             <div class="kpi">
               <div class="box">
@@ -725,7 +730,6 @@ const LIFF_ID = "2008838401-Ss5SClrX";
 
 const LS_TUTORIAL_LAST_DATE = "rr_tutorial_last_date";
 const LS_DAILY_LEADER_PREFIX = "lulu_hanoi_leader_"; // + YYYY-MM-DD
-
 const POLE_LABELS = ["A","B","C"]; // ✅ 已移除稱謂，只留 A/B/C
 
 const ui = {
@@ -780,6 +784,10 @@ let elapsedSec = 0;
 
 let readyToPlay = false;
 let displayName = "鹿粉";
+
+/* ✅ 搬運動畫控制 */
+let isAnimating = false;
+let hiddenMove = null; // {toPole, size}
 
 /* ===== helpers ===== */
 function todayStr(){
@@ -899,7 +907,7 @@ function renderLeaders(){
   ui.kpiBest.textContent = `${best.moves} / ${fmtTime(best.timeSec)}`;
 }
 
-/* ===== ✅ Daily spots (3~7 全支援；同一天同N固定；最大盤更大更密；避開數字) ===== */
+/* ===== ✅ Daily spots（同一天同N固定；避開數字；最大盤更強） ===== */
 const LS_DAILY_SPOTS_PREFIX  = "lulu_hanoi_spots_";  // + YYYY-MM-DD + "_" + N
 let dailySpotsCache = null;
 
@@ -919,54 +927,87 @@ function hashStrToSeed(s){
   }
   return h >>> 0;
 }
+
+/* ===== ✅ 三瓣形紅斑（角色化） ===== */
+const LULU_SPOT_TEMPLATES = [
+  [[28,62,16,12,-12,1.0],[72,60,15,12,10,1.0],[40,34,9,7,-8,0.7],[60,36,9,7,8,0.7]],
+  [[30,58,18,13,-18,1.0],[70,56,12,9,12,0.9],[78,68,9,7,20,0.7],[62,36,8,6,0,0.6]],
+  [[34,60,13,10,-10,0.9],[46,56,12,9,15,0.9],[40,70,12,9,0,0.9],[72,42,10,7,20,0.6]],
+  [[28,58,16,12,-10,1.0],[72,58,16,12,10,1.0],[50,74,10,7,0,0.75],[50,40,9,6,0,0.55]],
+  [[70,58,18,13,14,1.0],[32,56,12,9,-12,0.85],[24,66,10,7,-20,0.7],[44,36,8,6,8,0.55]],
+];
+
 function generateSpotsForSize(day, size, N){
-  const seed = hashStrToSeed(`${day}|N:${N}|size:${size}|luluSpotsV2`);
+  const seed = hashStrToSeed(`${day}|N:${N}|size:${size}|luluSpotsCHAR3PETAL`);
   const rnd = mulberry32(seed);
 
   const t = (size - 1) / (Math.max(1, N - 1));
   const isMax = (size === N);
+  const scale = 0.75 + t * 0.95 + (isMax ? 0.25 : 0);
 
-  const count = Math.round(2 + t * 10 + (isMax ? 6 : 0));
-  const rMin  = 3 + t * 4 + (isMax ? 2 : 0);
-  const rMax  = 6 + t * 10 + (isMax ? 6 : 0);
+  const avoidRx = 18 + t * 2.5;
+  const avoidRy = 18 + t * 3.5;
 
-  const avoidRx = 16 + t * 2;
-  const avoidRy = 18 + t * 3;
-
-  const marginX = 8, marginY = 14;
-
-  const layers = [];
-  let attempts = 0;
-
-  while(layers.length < count && attempts < 260){
-    attempts++;
-
-    const x = Math.round(marginX + rnd() * (100 - marginX*2));
-    const y = Math.round(marginY + rnd() * (100 - marginY*2));
-
-    const dx = x - 50, dy = y - 50;
-    const inAvoid = (dx*dx)/(avoidRx*avoidRx) + (dy*dy)/(avoidRy*avoidRy) < 1;
-    if(inAvoid) continue;
-
-    const r = Math.round(rMin + rnd() * (rMax - rMin));
-    const alpha = (0.20 + t*0.18 + (isMax ? 0.10 : 0)) * (0.85 + rnd()*0.35);
-
-    const c = (layers.length % 2 === 0)
-      ? `rgba(74,34,6,${alpha.toFixed(3)})`
-      : `rgba(122,63,18,${(alpha*0.95).toFixed(3)})`;
-
-    layers.push(`radial-gradient(circle at ${x}% ${y}%, ${c} 0 ${r}px, transparent ${r+1}px)`);
-  }
+  const templateIndex = seed % LULU_SPOT_TEMPLATES.length;
+  let blobs = LULU_SPOT_TEMPLATES[templateIndex];
 
   if(isMax){
+    blobs = blobs.concat([[22,66,16,12,-10,1.1],[78,64,16,12,10,1.1]]);
+  }else if(t > 0.55 && rnd() < 0.6){
+    blobs = blobs.concat([[50 + (rnd()*10-5), 62 + (rnd()*10-5), 9, 7, (rnd()*20-10), 0.6]]);
+  }
+
+  const colorA = `rgba(190,45,55,1)`;
+  const colorB = `rgba(150,28,40,1)`;
+  const edge   = `rgba(60,10,16,0.42)`;
+
+  const layers = [];
+
+  for(const b of blobs){
+    let [x,y,rx,ry,rot,w] = b;
+
+    x = x + (rnd()*4-2);
+    y = y + (rnd()*4-2);
+
+    const dx0 = x - 50, dy0 = y - 50;
+    const inAvoid = (dx0*dx0)/(avoidRx*avoidRx) + (dy0*dy0)/(avoidRy*avoidRy) < 1;
+    if(inAvoid){
+      x += (dx0 >= 0 ? 1 : -1) * (avoidRx * 0.55);
+      y += (dy0 >= 0 ? 1 : -1) * (avoidRy * 0.55);
+      x = Math.max(8, Math.min(92, x));
+      y = Math.max(14, Math.min(86, y));
+    }
+
+    const RX = Math.round(rx * scale);
+    const RY = Math.round(ry * scale);
+    const c  = (rnd() < 0.55) ? colorA : colorB;
+
+    // 三瓣中心分散
+    const ang = (rot + (rnd()*10-5)) * Math.PI / 180;
+    const spread = 0.42 + rnd()*0.10;
+    const dx = Math.cos(ang) * RX * spread;
+    const dy = Math.sin(ang) * RY * spread;
+
+    const r1x = Math.max(6, Math.round(RX * (0.72 + rnd()*0.06)));
+    const r1y = Math.max(5, Math.round(RY * (0.72 + rnd()*0.06)));
+    const r2x = Math.max(6, Math.round(RX * (0.66 + rnd()*0.06)));
+    const r2y = Math.max(5, Math.round(RY * (0.66 + rnd()*0.06)));
+
+    const p1 = [x - dx*0.85, y - dy*0.85];
+    const p2 = [x + dx*0.85, y + dy*0.85];
+    const p3 = [x + (rnd()*2-1), y + (RY*0.55) + (rnd()*3-1.5)];
+
     layers.push(
-      `radial-gradient(circle at 22% 66%, rgba(74,34,6,0.55) 0 20px, transparent 21px)`,
-      `radial-gradient(circle at 78% 58%, rgba(122,63,18,0.52) 0 19px, transparent 20px)`
+      `radial-gradient(${r1x}px ${r1y}px at ${p1[0].toFixed(1)}% ${p1[1].toFixed(1)}%, ${c} 0 72%, ${edge} 73% 82%, transparent 83% 100%),
+       radial-gradient(${r1x}px ${r1y}px at ${p2[0].toFixed(1)}% ${p2[1].toFixed(1)}%, ${c} 0 72%, ${edge} 73% 82%, transparent 83% 100%),
+       radial-gradient(${r2x}px ${r2y}px at ${p3[0].toFixed(1)}% ${p3[1].toFixed(1)}%, ${c} 0 72%, ${edge} 73% 82%, transparent 83% 100%),
+       radial-gradient(${Math.round(RX*0.55)}px ${Math.round(RY*0.45)}px at ${x.toFixed(1)}% ${(y+1).toFixed(1)}%, rgba(0,0,0,0.10) 0 60%, transparent 61% 100%)`
     );
   }
 
   return layers.join(", ");
 }
+
 function spotsKeyFor(N){
   return LS_DAILY_SPOTS_PREFIX + todayStr() + "_" + String(N);
 }
@@ -1002,9 +1043,8 @@ function getDailySpots(size){
   return map[String(size)] || "";
 }
 
-/* ===== ✅ Win 鹿鹿頭：4 款隨機（頭部樣式） ===== */
+/* ===== ✅ Win 鹿鹿頭：4 款隨機 ===== */
 const LULU_HEAD_SVGS = [
-  // 1) 驚呼 + 蝴蝶結
   `
   <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鹿鹿頭1">
     <circle cx="32" cy="34" r="18" fill="#FFE100" stroke="#2b1a08" stroke-width="3"/>
@@ -1024,7 +1064,6 @@ const LULU_HEAD_SVGS = [
     <circle cx="43" cy="23" r="1.8" fill="#FF2E7E" stroke="#2b1a08" stroke-width="1.4"/>
   </svg>
   `,
-  // 2) 小嘴「哦」+ 乖乖臉
   `
   <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鹿鹿頭2">
     <circle cx="32" cy="34" r="18" fill="#FFE100" stroke="#2b1a08" stroke-width="3"/>
@@ -1041,7 +1080,6 @@ const LULU_HEAD_SVGS = [
     <path d="M30 46c0-2 4-2 4 0 0 2-4 2-4 0Z" fill="#FF55A6" stroke="#2b1a08" stroke-width="2.6"/>
   </svg>
   `,
-  // 3) 大嘴 + 激動線
   `
   <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鹿鹿頭3">
     <circle cx="32" cy="34" r="18" fill="#FFE100" stroke="#2b1a08" stroke-width="3"/>
@@ -1060,7 +1098,6 @@ const LULU_HEAD_SVGS = [
     <path d="M36 47v4" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".75"/>
   </svg>
   `,
-  // 4) 爆炸頭
   `
   <svg width="86" height="86" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鹿鹿頭4">
     <path d="M12 26c-4 6-4 18 3 22 7 4 27 4 34 0 7-4 7-16 3-22-4-6-36-6-40 0Z" fill="#2b1a08" opacity=".95"/>
@@ -1141,6 +1178,9 @@ function resetGame(n, mode){
   }
 
   winFlashActive = false;
+  hiddenMove = null;
+  isAnimating = false;
+
   render();
   renderLeaders();
 
@@ -1150,21 +1190,99 @@ function resetGame(n, mode){
 }
 
 function diskWidthPercent(size){
-  // ✅ 數字越大盤越寬：1 最窄、N 最寬
   const min = 36, max = 94;
   const t = (size-1)/(N-1 || 1);
   return min + (max-min)*t;
 }
 function diskColor(size){
-  // 黃 → 橘 → 鹿鹿感（可愛）
   const t = (size-1)/(N-1 || 1);
-  const h = 48 - t*18;        // 48(黃) -> 30(橘)
+  const h = 48 - t*18;
   const s = 92;
   const l1 = 54 - t*6;
   const l2 = 44 - t*8;
   return `linear-gradient(180deg, hsl(${h} ${s}% ${l1}%), hsl(${h} ${s}% ${l2}%))`;
 }
 
+/* ✅ 取 DOM：某柱上方盤（實際 top 盤） */
+function getTopDiskEl(poleIndex){
+  const poleEl = ui.poles.querySelector(`.pole[data-index="${poleIndex}"]`);
+  if(!poleEl) return null;
+  const size = topDisk(poleIndex);
+  if(size === null) return null;
+  return poleEl.querySelector(`.disk[data-size="${size}"]`);
+}
+
+/* ✅ 搬運動畫：上浮→平移→落下 */
+async function animateMove(fromPole, toPole, size){
+  const fromEl = getTopDiskEl(fromPole);
+  if(!fromEl) return;
+
+  const fromRect = fromEl.getBoundingClientRect();
+
+  // 先更新資料，再 render 一次取得目的地位置
+  stacks[fromPole].pop();
+  stacks[toPole].push(size);
+
+  hiddenMove = { toPole, size }; // 目的地先隱藏一顆，等動畫結束再顯示
+  render();
+
+  const toPoleEl = ui.poles.querySelector(`.pole[data-index="${toPole}"]`);
+  const toEl = toPoleEl ? toPoleEl.querySelector(`.disk[data-size="${size}"]`) : null;
+  if(!toEl){
+    hiddenMove = null;
+    render();
+    return;
+  }
+  const toRect = toEl.getBoundingClientRect();
+
+  // 建立飛行盤子（複製視覺）
+  const fly = document.createElement("div");
+  fly.className = "disk flyingDisk" + (size<=2 ? " small" : "");
+  fly.dataset.size = String(size);
+  fly.style.width = fromRect.width + "px";
+  fly.style.height = fromRect.height + "px";
+  fly.style.left = fromRect.left + "px";
+  fly.style.top = fromRect.top + "px";
+  fly.style.background = diskColor(size);
+
+  const spots = getDailySpots(size);
+  if(spots) fly.style.setProperty("--spots", spots);
+
+  const tt = (size-1)/(Math.max(1, N-1));
+  const isMax = (size === N);
+  const op = Math.min(0.92, 0.62 + tt*0.18 + (isMax ? 0.10 : 0));
+  fly.style.setProperty("--spotOpacity", op.toFixed(3));
+
+  const num = document.createElement("span");
+  num.textContent = String(displayDiskNumber(size));
+  fly.appendChild(num);
+  document.body.appendChild(fly);
+
+  const dx = (toRect.left - fromRect.left);
+  const dy = (toRect.top - fromRect.top);
+
+  const lift = Math.min(90, Math.max(48, Math.abs(dx)*0.14 + 52));
+
+  await fly.animate(
+    [
+      { transform: `translate(0px, 0px)` },
+      { transform: `translate(0px, ${-lift}px)` },
+      { transform: `translate(${dx}px, ${-lift}px)` },
+      { transform: `translate(${dx}px, ${dy}px)` },
+    ],
+    {
+      duration: 440,
+      easing: "cubic-bezier(.2,.9,.2,1)",
+      fill: "forwards"
+    }
+  ).finished.catch(()=>{});
+
+  fly.remove();
+  hiddenMove = null;
+  render();
+}
+
+/* render */
 function render(){
   ui.poles.innerHTML = "";
 
@@ -1190,7 +1308,8 @@ function render(){
 
     const stack = document.createElement("div"); stack.className = "stack";
 
-    for(const size of stacks[i]){
+    /* ✅ 方式 A：顯示時反轉 → 視覺由上到下：1→N */
+    for(const size of stacks[i].slice().reverse()){
       const d = document.createElement("div");
       d.className = "disk" + (size<=2 ? " small": "");
       d.dataset.size = String(size);
@@ -1198,27 +1317,29 @@ function render(){
       d.style.width = diskWidthPercent(size) + "%";
       d.style.background = diskColor(size);
 
-      // ✅ 斑點：3~7 全支援；避開數字；最大盤更強
       const spots = getDailySpots(size);
       if(spots) d.style.setProperty("--spots", spots);
       else d.style.removeProperty("--spots");
 
       const t = (size-1)/(Math.max(1, N-1));
       const isMax = (size === N);
-      const op = Math.min(0.62, 0.14 + t*0.30 + (isMax ? 0.12 : 0));
+      const op = Math.min(0.92, 0.62 + t*0.18 + (isMax ? 0.10 : 0));
       d.style.setProperty("--spotOpacity", op.toFixed(3));
 
-      // ✅ 數字（中心永遠不被蓋）
       const num = document.createElement("span");
       num.textContent = String(displayDiskNumber(size));
       d.appendChild(num);
 
-      const isTop = (size === stacks[i][stacks[i].length-1]);
+      const isTop = (size === stacks[i][stacks[i].length-1]); // top is last (logic)
       const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
       if(isSelected) d.classList.add("selected");
 
-      // ✅ 通關金光（只給 C 柱的最大盤）
       if(winFlashActive && i===2 && size===N) d.classList.add("goldFlash");
+
+      // ✅ 目的地隱藏（動畫用）
+      if(hiddenMove && hiddenMove.toPole===i && hiddenMove.size===size && isTop){
+        d.classList.add("ghost");
+      }
 
       d.addEventListener("click",(e)=>{ e.stopPropagation(); onPoleTap(i); });
       stack.appendChild(d);
@@ -1235,9 +1356,10 @@ function render(){
   }
 }
 
-function onPoleTap(poleIndex){
+async function onPoleTap(poleIndex){
   if(ui.overlayStart.classList.contains("show")) return;
   if(!readyToPlay) return;
+  if(isAnimating) return; // ✅ 動畫期間鎖操作
 
   if(!selected){
     const size = topDisk(poleIndex);
@@ -1263,8 +1385,7 @@ function onPoleTap(poleIndex){
     return;
   }
 
-  const fromArr = stacks[fromPole];
-  const actual = fromArr[fromArr.length-1];
+  const actual = stacks[fromPole][stacks[fromPole].length-1];
   if(actual !== size){
     selected = null;
     ui.selectInfo.textContent = "未選取";
@@ -1272,17 +1393,20 @@ function onPoleTap(poleIndex){
     return;
   }
 
-  fromArr.pop();
-  stacks[poleIndex].push(size);
+  // ✅ 搬運動畫：上浮→平移→落下（完成後再計步、判斷通關）
+  selected = null;
+  ui.selectInfo.textContent = "未選取";
+  isAnimating = true;
+
+  await animateMove(fromPole, poleIndex, size);
 
   moves += 1;
   ui.moves.textContent = String(moves);
-  selected = null;
-  ui.selectInfo.textContent = "未選取";
   sfxPop("drop");
-  render();
 
-  checkWin();
+  isAnimating = false;
+
+  await checkWin();
 }
 
 async function checkWin(){
@@ -1290,7 +1414,6 @@ async function checkWin(){
 
   stopTimer();
 
-  // ✅ 先讓最底盤(N) 金光閃一下，再顯示通關視窗
   winFlashActive = true;
   render();
   await new Promise(r=>setTimeout(r, 260));
@@ -1299,7 +1422,6 @@ async function checkWin(){
 
   ui.overlayWin.classList.add("show");
 
-  // ✅ 4 款鹿鹿頭隨機 + 點頭
   setRandomWinHead();
   const nod = document.getElementById("luluNod");
   if(nod){
@@ -1345,7 +1467,7 @@ function ensureAudio(){
   if(audio.ctx) return;
   audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
   audio.master = audio.ctx.createGain();
-  audio.master.gain.value = 0.55;        // ✅ 總音量控制
+  audio.master.gain.value = 0.55;
   audio.master.connect(audio.ctx.destination);
 
   audio.lp = audio.ctx.createBiquadFilter();
@@ -1517,7 +1639,6 @@ function pluck(t, freq, amp){
   o.stop(t + 0.23);
 }
 
-/* ✅ 點擊回饋音效（泡泡啵啵；連擊音高略變；音量不吵） */
 function sfxPop(kind){
   if(!bgmOn) return;
   ensureAudio();
@@ -1662,7 +1783,6 @@ ui.btnNext.addEventListener("click", ()=>{
 
   renderLeaders();
 
-  // ✅ 開局預設 3（初心鹿鹿）
   ui.level.value = "3";
   N = 3;
   MODE = ui.startMode.value;
