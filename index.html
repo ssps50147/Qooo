@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>鹿鹿搬運任務｜鹿粉河內塔</title>
+  <title>鹿鹿 × 鹿粉｜河內塔搬運任務</title>
 
-  <!-- LIFF SDK -->
+  <!-- LIFF SDK（支援：只需改一行 LIFF_ID） -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
@@ -15,14 +15,13 @@
       --card:#ffffffcc;
       --text:#12202c;
       --muted:#5b6b7a;
-
       --pink:#ff5fa2;
       --blue:#2b7fff;
       --mint:#14b86a;
       --gold:#ffb020;
-
       --shadow: 0 12px 34px rgba(0,0,0,.12);
       --radius: 18px;
+      --danger:#ff3b30;
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--text); }
@@ -32,13 +31,14 @@
                   linear-gradient(180deg, #fff, #f8fbff);
       overflow:hidden;
     }
+
     .wrap{
       height:100%;
       display:flex;
       flex-direction:column;
-      padding:14px 14px calc(14px + env(safe-area-inset-bottom));
-      gap:12px;
-      max-width:920px;
+      padding:12px 12px calc(12px + env(safe-area-inset-bottom));
+      gap:10px;
+      max-width:1100px;
       margin:0 auto;
     }
 
@@ -47,7 +47,7 @@
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px 12px;
+      padding:10px 10px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -57,7 +57,7 @@
       display:flex;
       align-items:center;
       gap:10px;
-      min-width: 220px;
+      min-width: 240px;
     }
     .logo{
       width:44px; height:44px;
@@ -68,13 +68,16 @@
       display:grid;
       place-items:center;
       overflow:hidden;
+      flex: 0 0 auto;
     }
     .title{
-      display:flex; flex-direction:column; gap:2px;
+      display:flex;
+      flex-direction:column;
+      gap:2px;
       min-width: 160px;
     }
     .title h1{
-      margin:0; font-size:16px; letter-spacing:.2px;
+      margin:0; font-size:15px;
       display:flex; align-items:center; gap:8px;
       white-space:nowrap;
     }
@@ -87,15 +90,18 @@
       border: 1px solid rgba(43,127,255,.25);
     }
     .sub{
-      font-size:12px; color:var(--muted);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      max-width: 320px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 360px;
     }
 
-    .stats{
+    .right{
       display:flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       flex-wrap:wrap;
       justify-content:flex-end;
       margin-left:auto;
@@ -112,13 +118,9 @@
       color:var(--muted);
       user-select:none;
     }
-    .chip strong{ color:var(--text); font-weight:800; }
-    .controls{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .chip strong{ color:var(--text); font-weight:900; }
+
+    .controls{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .btn{
       border:0;
       border-radius: 999px;
@@ -141,13 +143,17 @@
       border:1px solid rgba(255,95,162,.28);
       color: var(--pink);
     }
+    .btn.ghost{
+      background: transparent;
+      box-shadow:none;
+    }
     .btn:active{ transform: translateY(1px); }
 
     .main{
       flex:1;
       display:flex;
-      gap:12px;
-      min-height: 0;
+      gap:10px;
+      min-height:0;
     }
     .board{
       flex: 1;
@@ -155,11 +161,11 @@
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px;
+      padding:10px;
       position:relative;
       display:flex;
       flex-direction:column;
-      min-height: 0;
+      min-height:0;
     }
     .boardHeader{
       display:flex;
@@ -187,7 +193,7 @@
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
       align-items:stretch;
-      min-height: 0;
+      min-height:0;
     }
     .pole{
       position:relative;
@@ -195,7 +201,7 @@
       background: rgba(255,255,255,.72);
       border:1px dashed rgba(0,0,0,.12);
       overflow:hidden;
-      min-height: 0;
+      min-height:0;
       display:flex;
       flex-direction:column;
       justify-content:flex-end;
@@ -215,15 +221,18 @@
       font-size:12px;
       color: var(--muted);
       display:flex; gap:8px; align-items:center;
-      max-width: 70%;
+      max-width: 72%;
+      min-width: 0;
     }
     .poleLabel .dot{
       width:8px;height:8px;border-radius:99px;background:rgba(255,95,162,.45);
+      flex: 0 0 auto;
     }
     .poleLabel span.name{
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      min-width:0;
     }
     .poleCount{
       font-size:12px;
@@ -249,17 +258,16 @@
       background: rgba(18,32,44,.10);
       pointer-events:none;
     }
-
     .stack{
       position:relative;
       display:flex;
       flex-direction:column;
       gap:8px;
       padding-bottom:8px;
-      min-height: 0;
+      min-height:0;
     }
 
-    /* 鹿粉徽章（盤子） */
+    /* 徽章（盤子） */
     .disk{
       height: 28px;
       border-radius: 999px;
@@ -289,19 +297,14 @@
       transform: translateY(-3px);
       box-shadow: 0 14px 26px rgba(43,127,255,.18);
     }
-    .disk .left{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      z-index:1;
-      min-width: 0;
-    }
+    .disk .left{ display:flex; align-items:center; gap:8px; z-index:1; min-width:0; }
     .disk .pin{
       width:18px;height:18px;border-radius: 6px;
       background: rgba(255,255,255,.55);
       border:1px solid rgba(0,0,0,.08);
       display:grid; place-items:center;
       font-size:12px;
+      flex: 0 0 auto;
     }
     .disk .txt{
       font-size:12px;
@@ -309,7 +312,7 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 180px;
+      min-width:0;
     }
     .disk .tag{
       font-size:11px;
@@ -323,20 +326,20 @@
     }
 
     .side{
-      width: 320px;
-      max-width: 46vw;
+      width: 330px;
+      max-width: 44vw;
       display:flex;
       flex-direction:column;
-      gap:12px;
-      min-height: 0;
+      gap:10px;
+      min-height:0;
     }
     .card{
       background:var(--card);
       backdrop-filter: blur(8px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px;
-      min-height: 0;
+      padding:10px;
+      min-height:0;
     }
     .card h2{
       margin:0 0 8px;
@@ -367,12 +370,7 @@
     }
     .row:last-child{ border-bottom:0; }
     .row b{ color: var(--text); }
-    .select{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
+    .select{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     select{
       padding:10px 12px;
       border-radius: 12px;
@@ -381,10 +379,43 @@
       font-size:13px;
     }
 
+    .leader{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-height: 260px;
+      overflow:auto;
+      padding-right: 4px;
+    }
+    .entry{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 14px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      font-size:12px;
+      color: var(--muted);
+    }
+    .entry .name{
+      max-width: 160px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: var(--text);
+      font-weight:800;
+    }
+    .entry .meta{
+      white-space:nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
     .toast{
       position: fixed;
       left:50%;
-      bottom: calc(14px + env(safe-area-inset-bottom));
+      bottom: calc(12px + env(safe-area-inset-bottom));
       transform: translateX(-50%);
       background: rgba(18,32,44,.92);
       color:#fff;
@@ -394,7 +425,7 @@
       opacity:0;
       pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index: 50;
+      z-index: 200;
       max-width: 92vw;
       white-space:nowrap;
       overflow:hidden;
@@ -405,34 +436,62 @@
       transform: translateX(-50%) translateY(-4px);
     }
 
+    /* overlays */
     .overlay{
       position:absolute;
       inset:0;
       display:none;
       align-items:center;
       justify-content:center;
-      background: rgba(255,255,255,.55);
-      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,.62);
+      backdrop-filter: blur(10px);
       border-radius: var(--radius);
-      z-index: 20;
+      z-index: 100;
     }
     .overlay.show{ display:flex; }
+
     .modal{
-      width:min(560px, 92%);
+      width:min(620px, 92%);
       background:#fff;
       border-radius: 22px;
       box-shadow: 0 18px 55px rgba(0,0,0,.18);
-      padding:16px;
+      padding:14px;
       border:1px solid rgba(0,0,0,.08);
     }
-    .modal h3{ margin:0 0 8px; font-size:16px; }
-    .modal p{ margin:0 0 12px; color: var(--muted); font-size:13px; line-height:1.55; }
-    .modal .actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+    .modal h3{ margin:0 0 6px; font-size:16px; }
+    .modal p{
+      margin:0 0 10px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      white-space:pre-line;
+    }
+    .modal .actions{
+      display:flex;
+      gap:8px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .modal .actions .left{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .modal .actions .right{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-left:auto;
+    }
     .kpi{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
-      margin:10px 0 12px;
+      margin:10px 0 10px;
     }
     .kpi .box{
       background: rgba(43,127,255,.08);
@@ -445,6 +504,7 @@
       font-size:16px;
       font-weight:900;
       color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
     .kpi .box .t{
       font-size:12px;
@@ -452,25 +512,75 @@
       margin-top:2px;
     }
 
-    @media (max-width: 840px){
+    /* Orientation full-screen overlay (outside board) */
+    #orientationGate{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(18,32,44,.92);
+      color:#fff;
+      z-index: 9999;
+      padding:16px;
+      text-align:center;
+    }
+    #orientationGate.show{ display:flex; }
+    .og-card{
+      width:min(520px, 92%);
+      border-radius: 24px;
+      padding:18px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    .og-title{ font-size:18px; font-weight:900; margin:0 0 8px; }
+    .og-desc{ margin:0; opacity:.9; line-height:1.6; font-size:14px; white-space:pre-line; }
+    .og-icon{
+      margin: 12px auto 10px;
+      width:84px; height:84px;
+      border-radius: 24px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+    }
+
+    @media (max-width: 900px){
       .main{ flex-direction:column; }
       .side{ width:100%; max-width:100%; flex-direction:row; }
       .side .card{ flex:1; }
+      .leader{ max-height: 180px; }
     }
-    @media (max-width: 520px){
+    @media (max-width: 560px){
       .side{ flex-direction:column; }
       .sub{ max-width: 240px; }
-      .disk{ height:26px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <!-- 1) 強制橫向：直向不可開始（遮罩＋提示） -->
+  <div id="orientationGate" aria-live="polite">
+    <div class="og-card">
+      <div class="og-icon">
+        <!-- phone rotate icon -->
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="none">
+          <path d="M7 2h6a2 2 0 0 1 2 2v1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M9 6h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="white" stroke-width="2" opacity=".9"/>
+          <path d="M4 12a8 8 0 0 0 8 8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 22l-2-2m2 2l2-2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="og-title">請先把手機橫過來 🦒✨</p>
+      <p class="og-desc">本遊戲只支援「橫向」遊玩。\n轉為橫向後就會自動開始。</p>
+    </div>
+  </div>
+
+  <div class="wrap" id="app">
     <div class="topbar">
       <div class="brand">
         <div class="logo" aria-label="鹿鹿">
-          <!-- 簡單 SVG 鹿鹿頭像 -->
+          <!-- 鹿鹿頭像 SVG -->
           <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
             <rect x="0" y="0" width="64" height="64" rx="16" fill="#FFF7FB"/>
             <path d="M22 44c0-10 8-18 18-18s18 8 18 18" stroke="#1A2B3A" stroke-width="3" stroke-linecap="round"/>
@@ -488,12 +598,12 @@
         </div>
       </div>
 
-      <div class="stats">
+      <div class="right">
         <div class="chip">步數 <strong id="moves">0</strong></div>
         <div class="chip">時間 <strong id="time">00:00</strong></div>
         <div class="controls">
           <button class="btn" id="btnHow">玩法</button>
-          <button class="btn" id="btnSound">音效：開</button>
+          <button class="btn" id="btnBgm">BGM：開</button>
           <button class="btn danger" id="btnRestart">重來</button>
           <button class="btn primary" id="btnClose">關閉</button>
         </div>
@@ -504,17 +614,33 @@
       <div class="board">
         <div class="boardHeader">
           <div class="hint">
-            鹿粉請幫鹿鹿把「碎片徽章」搬到 <b>第 3 柱（天空裂縫柱）</b>！
-            <br/>操作：點一下徽章「拿起」→ 再點柱子「放下」。規則：<b>小徽章才能放在大徽章上</b>。
+            操作很簡單：<b>點一下徽章拿起 → 再點柱子放下</b>。把所有徽章搬到第 3 柱就通關！
           </div>
           <div class="selectInfo" id="selectInfo">未選取</div>
         </div>
 
         <div class="poles" id="poles"></div>
 
+        <!-- 2&3) 開局玩法視窗：只說明玩法；右下角「快速開始」；每日看過一次後，下次直接顯示快速開始 -->
+        <div class="overlay" id="overlayStart">
+          <div class="modal">
+            <h3 id="startTitle">📖 玩法</h3>
+            <p id="startText">點一下最上層「鹿粉徽章」拿起，再點目標柱子放下。\n把全部徽章搬到第 3 柱，就完成任務！</p>
+            <div class="actions">
+              <div class="left">
+                <button class="btn" id="btnStartMore">再看一次玩法</button>
+              </div>
+              <div class="right">
+                <button class="btn primary" id="btnQuickStart">快速開始</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Win overlay -->
         <div class="overlay" id="overlayWin">
           <div class="modal">
-            <h3>🎉 任務完成！鹿鹿超安心</h3>
+            <h3>🎉 任務完成！鹿鹿點頭中</h3>
             <p id="winText">你完成了搬運。</p>
             <div class="kpi">
               <div class="box">
@@ -527,12 +653,17 @@
               </div>
               <div class="box">
                 <div class="v" id="kpiBest">—</div>
-                <div class="t">最佳</div>
+                <div class="t">今日最佳</div>
               </div>
             </div>
             <div class="actions">
-              <button class="btn" id="btnShare">分享</button>
-              <button class="btn primary" id="btnNext">下一關</button>
+              <div class="left">
+                <button class="btn" id="btnShare">分享</button>
+              </div>
+              <div class="right">
+                <button class="btn" id="btnAgain">再玩一次</button>
+                <button class="btn primary" id="btnNext">下一關</button>
+              </div>
             </div>
           </div>
         </div>
@@ -542,7 +673,7 @@
         <div class="card">
           <h2>關卡 <span class="pill">鹿粉挑戰</span></h2>
           <div class="row">
-            <span>徽章數（盤子）</span>
+            <span>徽章數</span>
             <span class="select">
               <select id="level">
                 <option value="3">3（暖身）</option>
@@ -556,20 +687,26 @@
             </span>
           </div>
           <div class="row">
-            <span>理論最少步數</span>
+            <span>最少步數</span>
             <span><b id="minMoves">—</b></span>
-          </div>
-          <div class="row">
-            <span>最佳紀錄（此關）</span>
-            <span><b id="best">—</b></span>
           </div>
         </div>
 
+        <!-- 4) 排行榜只保留今天資料 -->
         <div class="card">
-          <h2>任務提示</h2>
+          <h2>今日排行榜 <span class="pill" id="todayPill">今天</span></h2>
+          <div class="row">
+            <span>僅保留今日紀錄</span>
+            <span><b id="todayKey">—</b></span>
+          </div>
+          <div class="leader" id="leader"></div>
+        </div>
+
+        <div class="card">
+          <h2>小提醒</h2>
           <div class="row"><span>目標</span><span><b>全部移到第 3 柱</b></span></div>
           <div class="row"><span>操作</span><span><b>徽章 → 柱子</b></span></div>
-          <div class="row"><span>規則</span><span><b>小放大上</b></span></div>
+          <div class="row"><span>BGM</span><span><b>程式生成（免音檔）</b></span></div>
         </div>
       </div>
     </div>
@@ -578,105 +715,242 @@
   <div class="toast" id="toast"></div>
 
 <script>
-/** 鹿鹿 × 鹿粉 河內塔（LIFF） */
-const LS_BEST_PREFIX = "lulu_hanoi_best_"; // lulu_hanoi_best_5 => {bestMoves,bestTimeSec}
+/**
+ * 鹿鹿 × 鹿粉｜河內塔（單一 index.html / 免外部音檔）
+ * 需求整合：
+ * 1) 強制橫向：直向不可開始（遮罩＋提示）
+ * 2) 開局玩法視窗：只說明玩法
+ * 3) 右下角「快速開始」：每天看過一次教學後，下次直接顯示快速開始（簡化模式）
+ * 4) 排行榜只保留今天資料（本機 localStorage，跨裝置不共享）
+ * 5) 環境 BGM：程式生成的輕鬆慵懶音樂（WebAudio）
+ * 6) 支援 LIFF（只需改一行 LIFF_ID）
+ */
+
+/* ========= 6) LIFF：只改這一行 ========= */
+const LIFF_ID = "2008838401-Ss5SClrX";
+/* ====================================== */
+
+const POLE_NAMES = ["樹屋柱", "補給柱", "天空裂縫柱"];
+
+const LS_TUTORIAL_LAST_DATE = "rr_tutorial_last_date";
+const LS_DAILY_LEADER_PREFIX = "lulu_hanoi_leader_"; // + YYYY-MM-DD
 
 const ui = {
-  userLine: document.getElementById("userLine"),
   modeBadge: document.getElementById("modeBadge"),
-  poles: document.getElementById("poles"),
+  userLine: document.getElementById("userLine"),
+
   moves: document.getElementById("moves"),
   time: document.getElementById("time"),
   selectInfo: document.getElementById("selectInfo"),
+
   level: document.getElementById("level"),
   minMoves: document.getElementById("minMoves"),
-  best: document.getElementById("best"),
-  toast: document.getElementById("toast"),
+
+  poles: document.getElementById("poles"),
+
+  overlayStart: document.getElementById("overlayStart"),
+  startTitle: document.getElementById("startTitle"),
+  startText: document.getElementById("startText"),
+  btnQuickStart: document.getElementById("btnQuickStart"),
+  btnStartMore: document.getElementById("btnStartMore"),
+
   overlayWin: document.getElementById("overlayWin"),
   winText: document.getElementById("winText"),
   kpiMoves: document.getElementById("kpiMoves"),
   kpiTime: document.getElementById("kpiTime"),
   kpiBest: document.getElementById("kpiBest"),
+
   btnHow: document.getElementById("btnHow"),
-  btnSound: document.getElementById("btnSound"),
+  btnBgm: document.getElementById("btnBgm"),
   btnRestart: document.getElementById("btnRestart"),
   btnClose: document.getElementById("btnClose"),
   btnNew: document.getElementById("btnNew"),
   btnShare: document.getElementById("btnShare"),
   btnNext: document.getElementById("btnNext"),
+  btnAgain: document.getElementById("btnAgain"),
+
+  toast: document.getElementById("toast"),
+
+  leader: document.getElementById("leader"),
+  todayPill: document.getElementById("todayPill"),
+  todayKey: document.getElementById("todayKey"),
+
+  orientationGate: document.getElementById("orientationGate"),
 };
 
-const POLE_NAMES = ["樹屋柱", "補給柱", "天空裂縫柱"];
-
 let N = parseInt(ui.level.value, 10);
-let stacks = [[], [], []]; // disk sizes (1 small .. N big). top is last.
+let stacks = [[],[],[]]; // disk sizes (1 small .. N big), top is last
 let selected = null; // {fromPole, size}
 let moves = 0;
-
 let timer = null;
 let startAt = null;
 let elapsedSec = 0;
 
-let soundOn = true;
-let audioCtx = null;
+let appEnabled = true; // disabled when portrait gate is on
+let readyToPlay = false; // becomes true after passing start modal (quick start)
 
+let displayName = "鹿粉";
+let liffReady = false;
+
+/* ===== helpers ===== */
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
 function fmtTime(sec){
   sec = Math.max(0, sec|0);
   const mm = String(Math.floor(sec/60)).padStart(2,"0");
   const ss = String(sec%60).padStart(2,"0");
   return `${mm}:${ss}`;
 }
-
 function toast(msg){
   ui.toast.textContent = msg;
   ui.toast.classList.add("show");
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>ui.toast.classList.remove("show"), 1100);
 }
-
 function minMovesFor(n){ return (2 ** n) - 1; }
 
-function getBest(n){
-  try{
-    const raw = localStorage.getItem(LS_BEST_PREFIX + n);
-    if(!raw) return null;
-    const obj = JSON.parse(raw);
-    if(!obj) return null;
-    return { bestMoves: Number(obj.bestMoves), bestTimeSec: Number(obj.bestTimeSec) };
-  }catch{ return null; }
+/* ===== 1) Orientation gate ===== */
+function isLandscape(){
+  // robust check: width>height (works on mobile webview); if missing use screen orientation
+  return window.innerWidth > window.innerHeight;
 }
-function setBest(n, bestMoves, bestTimeSec){
-  localStorage.setItem(LS_BEST_PREFIX + n, JSON.stringify({ bestMoves, bestTimeSec }));
+function setGate(on){
+  ui.orientationGate.classList.toggle("show", on);
+  appEnabled = !on;
+  // when gated, pause timer + stop interactions
+  if(on){
+    stopTimer();
+  }else{
+    // resume timer only if already started & not win overlay & passed start modal
+    if(readyToPlay && !ui.overlayWin.classList.contains("show")){
+      startTimer();
+    }
+  }
 }
-function renderBest(){
-  ui.minMoves.textContent = String(minMovesFor(N));
-  const b = getBest(N);
-  ui.best.textContent = (!b || !isFinite(b.bestMoves) || !isFinite(b.bestTimeSec))
-    ? "—"
-    : `${b.bestMoves} 步 / ${fmtTime(b.bestTimeSec)}`;
+function updateOrientationGate(){
+  const gated = !isLandscape();
+  setGate(gated);
+}
+window.addEventListener("resize", updateOrientationGate);
+window.addEventListener("orientationchange", updateOrientationGate);
+
+/* ===== 3) Daily tutorial gating ===== */
+function getTutorialLastDate(){
+  try{ return localStorage.getItem(LS_TUTORIAL_LAST_DATE) || ""; }catch{ return ""; }
+}
+function setTutorialLastDate(d){
+  try{ localStorage.setItem(LS_TUTORIAL_LAST_DATE, d); }catch{}
+}
+function showStartOverlay(){
+  ui.overlayWin.classList.remove("show");
+  ui.overlayStart.classList.add("show");
+
+  const today = todayStr();
+  const last = getTutorialLastDate();
+  const seenToday = (last === today);
+
+  // 每天第一次：顯示玩法（簡短）
+  // 同一天之後：直接進「快速開始」狀態（仍保留按鈕在右下角）
+  if(!seenToday){
+    ui.startTitle.textContent = "📖 玩法";
+    ui.startText.textContent =
+      "點一下最上層「鹿粉徽章」拿起，再點目標柱子放下。\n把全部徽章搬到第 3 柱，就完成任務！";
+    ui.btnStartMore.textContent = "再看一次玩法";
+    ui.btnStartMore.style.display = "inline-block";
+  }else{
+    // 簡化：下次直接顯示快速開始（不再強迫閱讀）
+    ui.startTitle.textContent = "🦒 今天繼續搬運";
+    ui.startText.textContent = "按右下角「快速開始」就能立刻開玩。";
+    ui.btnStartMore.textContent = "查看玩法";
+    ui.btnStartMore.style.display = "inline-block";
+  }
+}
+function hideStartOverlay(){
+  ui.overlayStart.classList.remove("show");
 }
 
-function ensureAudio(){
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+/* ===== 4) Daily leaderboard (local only) ===== */
+function leaderKey(){
+  return LS_DAILY_LEADER_PREFIX + todayStr();
 }
-function popSfx(kind){
-  if(!soundOn) return;
+function loadLeaders(){
+  // only today
+  const key = leaderKey();
   try{
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "sine";
-    const f = kind==="pick" ? 520 : (kind==="drop" ? 420 : 320);
-    o.frequency.setValueAtTime(f, t);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.10, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(t); o.stop(t + 0.13);
-  }catch{}
+    const raw = localStorage.getItem(key);
+    if(!raw) return [];
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr)) return [];
+    // sanitize
+    return arr
+      .filter(x => x && typeof x === "object")
+      .map(x => ({
+        name: String(x.name || "鹿粉").slice(0, 24),
+        moves: Number(x.moves),
+        timeSec: Number(x.timeSec),
+        level: Number(x.level),
+        ts: Number(x.ts || 0),
+      }))
+      .filter(x => isFinite(x.moves) && isFinite(x.timeSec) && isFinite(x.level));
+  }catch{ return []; }
+}
+function saveLeaders(arr){
+  const key = leaderKey();
+  try{ localStorage.setItem(key, JSON.stringify(arr)); }catch{}
+}
+function addLeaderEntry(entry){
+  const arr = loadLeaders();
+  arr.push(entry);
+
+  // sort: fewer moves first, tie shorter time, tie higher level, tie earlier
+  arr.sort((a,b)=>{
+    if(a.moves !== b.moves) return a.moves - b.moves;
+    if(a.timeSec !== b.timeSec) return a.timeSec - b.timeSec;
+    if(a.level !== b.level) return b.level - a.level;
+    return (a.ts||0) - (b.ts||0);
+  });
+
+  // keep top 10
+  const top = arr.slice(0, 10);
+  saveLeaders(top);
+  renderLeaders();
+}
+function renderLeaders(){
+  const list = loadLeaders();
+  ui.leader.innerHTML = "";
+  const d = todayStr();
+  ui.todayKey.textContent = d;
+
+  if(list.length === 0){
+    const e = document.createElement("div");
+    e.className = "entry";
+    e.innerHTML = `<span class="name">今天還沒人通關</span><span class="meta">先當第一名！</span>`;
+    ui.leader.appendChild(e);
+    ui.kpiBest.textContent = "—";
+    return;
+  }
+
+  list.forEach((x, idx)=>{
+    const e = document.createElement("div");
+    e.className = "entry";
+    const rank = idx===0 ? "🥇" : idx===1 ? "🥈" : idx===2 ? "🥉" : `#${idx+1}`;
+    e.innerHTML = `
+      <span class="name">${rank} ${escapeHtml(x.name)}</span>
+      <span class="meta">${x.moves}步 · ${fmtTime(x.timeSec)} · ${x.level}徽章</span>
+    `;
+    ui.leader.appendChild(e);
+  });
+
+  const best = list[0];
+  ui.kpiBest.textContent = `${best.moves} / ${fmtTime(best.timeSec)}`;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
 
+/* ===== Game core ===== */
 function startTimer(){
   stopTimer();
   startAt = Date.now() - elapsedSec*1000;
@@ -688,11 +962,11 @@ function startTimer(){
 function stopTimer(){
   if(timer){ clearInterval(timer); timer=null; }
 }
-
 function resetGame(n){
   N = n;
-  stacks = [[], [], []];
+  stacks = [[],[],[]];
   for(let s=n; s>=1; s--) stacks[0].push(s);
+
   selected = null;
   moves = 0;
   elapsedSec = 0;
@@ -700,29 +974,40 @@ function resetGame(n){
   ui.moves.textContent = "0";
   ui.time.textContent = "00:00";
   ui.selectInfo.textContent = "未選取";
+
   ui.overlayWin.classList.remove("show");
 
-  renderBest();
+  ui.minMoves.textContent = String(minMovesFor(N));
   render();
-  startTimer();
-  toast(`鹿粉集合！${N} 枚碎片徽章開搬`);
-}
+  renderLeaders();
 
+  // gameplay doesn't run until quick start
+  readyToPlay = false;
+  stopTimer();
+  showStartOverlay();
+}
 function diskWidthPercent(size){
   const min = 36, max = 96;
   const t = (size-1)/(N-1 || 1);
   return min + (max-min)*t;
 }
 function diskBg(size){
-  // 粉→藍→金 的柔和漸層（依大小變色）
   const t = (size-1)/(N-1 || 1);
-  const h = 330 + t*110; // 330(粉紫) -> 80(金)
+  const h = 330 + t*110; // pinkish -> golden
   return `linear-gradient(135deg,
     hsla(${h}, 95%, 70%, .95),
     hsla(${h+18}, 95%, 80%, .95)
   )`;
 }
-
+function topDisk(poleIndex){
+  const arr = stacks[poleIndex];
+  return arr.length ? arr[arr.length-1] : null;
+}
+function canPlace(size, poleIndex){
+  const top = topDisk(poleIndex);
+  if(top === null) return true;
+  return size < top;
+}
 function render(){
   ui.poles.innerHTML = "";
   for(let i=0;i<3;i++){
@@ -740,21 +1025,15 @@ function render(){
       <div class="poleCount">${stacks[i].length} 枚</div>
     `;
 
-    const rod = document.createElement("div");
-    rod.className = "rod";
-    const base = document.createElement("div");
-    base.className = "base";
-
-    const stack = document.createElement("div");
-    stack.className = "stack";
+    const rod = document.createElement("div"); rod.className = "rod";
+    const base = document.createElement("div"); base.className = "base";
+    const stack = document.createElement("div"); stack.className = "stack";
 
     for(const size of stacks[i]){
       const d = document.createElement("div");
       d.className = "disk" + (size<=2 ? " small": "");
       d.style.width = diskWidthPercent(size) + "%";
       d.style.background = diskBg(size);
-      d.dataset.size = String(size);
-      d.dataset.pole = String(i);
 
       const isTop = (size === stacks[i][stacks[i].length-1]);
       const isSelected = selected && selected.fromPole === i && selected.size === size && isTop;
@@ -783,26 +1062,17 @@ function render(){
   }
 }
 
-function topDisk(poleIndex){
-  const arr = stacks[poleIndex];
-  return arr.length ? arr[arr.length-1] : null;
-}
-function canPlace(size, poleIndex){
-  const top = topDisk(poleIndex);
-  if(top === null) return true;
-  return size < top;
-}
-
 function onPoleTap(poleIndex){
+  if(!appEnabled) return;                 // portrait gate
+  if(ui.overlayStart.classList.contains("show")) return;
+  if(!readyToPlay) return;
+
   if(!selected){
     const size = topDisk(poleIndex);
-    if(size === null){
-      toast("這根柱子目前空空的～");
-      return;
-    }
+    if(size === null){ toast("這根柱子空空的～"); return; }
     selected = { fromPole: poleIndex, size };
     ui.selectInfo.textContent = `已拿起：${size}號（${POLE_NAMES[poleIndex]}）`;
-    popSfx("pick");
+    sfxPop("pick");
     render();
     return;
   }
@@ -816,8 +1086,8 @@ function onPoleTap(poleIndex){
   }
 
   if(!canPlace(size, poleIndex)){
-    toast("規則：小徽章才能放在大徽章上！");
-    popSfx("bad");
+    toast("放不下：先把小的放上面～");
+    sfxPop("bad");
     return;
   }
 
@@ -837,7 +1107,7 @@ function onPoleTap(poleIndex){
   ui.moves.textContent = String(moves);
   selected = null;
   ui.selectInfo.textContent = "未選取";
-  popSfx("drop");
+  sfxPop("drop");
   render();
 
   checkWin();
@@ -852,65 +1122,280 @@ function checkWin(){
   const theoretical = minMovesFor(N);
   const rank = moves === theoretical ? "完美鹿粉！" : (moves <= theoretical + 8 ? "神級鹿粉！" : "合格鹿粉！");
   ui.winText.textContent =
-    `你用 ${moves} 步、${fmtTime(elapsedSec)} 把碎片徽章全送到「天空裂縫柱」✨` +
-    `\n${rank}（理論最少：${theoretical} 步）`;
+    `你用 ${moves} 步、${fmtTime(elapsedSec)} 完成「${N} 枚徽章搬運」✨\n${rank}（最少：${theoretical} 步）`;
 
   ui.kpiMoves.textContent = String(moves);
   ui.kpiTime.textContent = fmtTime(elapsedSec);
 
-  const b = getBest(N);
-  let isNew = false;
-  if(!b || !isFinite(b.bestMoves) || !isFinite(b.bestTimeSec)){
-    setBest(N, moves, elapsedSec);
-    isNew = true;
-  }else{
-    const better = (moves < b.bestMoves) || (moves === b.bestMoves && elapsedSec < b.bestTimeSec);
-    if(better){ setBest(N, moves, elapsedSec); isNew = true; }
+  // 4) update today's leaderboard
+  addLeaderEntry({
+    name: displayName || "鹿粉",
+    moves,
+    timeSec: elapsedSec,
+    level: N,
+    ts: Date.now()
+  });
+
+  // show best in KPI (already rendered)
+  renderLeaders();
+}
+
+/* ===== 5) Procedural “lazy chill” BGM (no external audio) ===== */
+let bgmOn = true;
+let audio = {
+  ctx: null,
+  master: null,
+  musicGain: null,
+  noiseGain: null,
+  lp: null,
+  started: false,
+  nextNoteT: 0,
+  timer: null,
+  seed: 0,
+};
+function ensureAudio(){
+  if(audio.ctx) return;
+  audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audio.master = audio.ctx.createGain();
+  audio.master.gain.value = 0.55; // overall volume (gentle)
+  audio.master.connect(audio.ctx.destination);
+
+  audio.lp = audio.ctx.createBiquadFilter();
+  audio.lp.type = "lowpass";
+  audio.lp.frequency.value = 1600;
+  audio.lp.Q.value = 0.6;
+
+  audio.musicGain = audio.ctx.createGain();
+  audio.musicGain.gain.value = 0.85;
+  audio.noiseGain = audio.ctx.createGain();
+  audio.noiseGain.gain.value = 0.20;
+
+  audio.musicGain.connect(audio.lp);
+  audio.noiseGain.connect(audio.lp);
+  audio.lp.connect(audio.master);
+}
+function setBgmButton(){
+  ui.btnBgm.textContent = `BGM：${bgmOn ? "開" : "關"}`;
+}
+function startBgmIfNeeded(){
+  if(!bgmOn) return;
+  ensureAudio();
+  if(audio.ctx.state === "suspended") audio.ctx.resume().catch(()=>{});
+  if(audio.started) return;
+  audio.started = true;
+  audio.seed = (Date.now() % 9973) | 0;
+  audio.nextNoteT = audio.ctx.currentTime + 0.06;
+  audio.timer = setInterval(scheduler, 100);
+}
+function stopBgm(){
+  if(audio.timer){ clearInterval(audio.timer); audio.timer=null; }
+  audio.started = false;
+}
+function scheduler(){
+  if(!audio.ctx) return;
+  const lookAhead = 0.35;
+  while(audio.nextNoteT < audio.ctx.currentTime + lookAhead){
+    scheduleStep(audio.nextNoteT);
+    audio.nextNoteT += stepDur();
   }
-  const nb = getBest(N);
-  ui.kpiBest.textContent = nb ? `${nb.bestMoves} / ${fmtTime(nb.bestTimeSec)}` : "—";
-  renderBest();
-
-  if(isNew) toast("🏆 新最佳紀錄！鹿鹿點頭中");
+}
+function bpm(){ return 78; } // lazy tempo
+function stepDur(){
+  // 1/4 note
+  return 60 / bpm();
+}
+function rand(){
+  // tiny deterministic PRNG-ish
+  audio.seed = (audio.seed * 1103515245 + 12345) & 0x7fffffff;
+  return (audio.seed / 0x7fffffff);
+}
+function noteFreq(midi){
+  return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function showHow(){
-  alert(
-`【鹿鹿搬運任務｜玩法】
-1) 點一下柱子：拿起該柱最上層「鹿粉徽章」
-2) 再點目標柱：把徽章放下
+const CHORDS = [
+  // Cmaj7, Am7, Dm7, G7 (lofi loop)
+  [60, 64, 67, 71],
+  [57, 60, 64, 67],
+  [62, 65, 69, 72],
+  [55, 59, 62, 65],
+];
 
-規則：小徽章才能放在大徽章上
-目標：把全部 ${N} 枚徽章搬到第 3 柱（天空裂縫柱）`
-  );
+let stepCount = 0;
+
+function scheduleStep(t){
+  const ctx = audio.ctx;
+
+  // chord pad (very soft)
+  const bar = Math.floor(stepCount / 4) % CHORDS.length;
+  const chord = CHORDS[bar];
+
+  if(stepCount % 2 === 0){ // every half-note, refresh pad
+    chord.forEach((m, i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "triangle";
+      const det = (i - 1.5) * 3; // slight detune
+      o.detune.setValueAtTime(det, t);
+      o.frequency.setValueAtTime(noteFreq(m - 12), t);
+
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.05, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.75);
+
+      o.connect(g);
+      g.connect(audio.musicGain);
+      o.start(t);
+      o.stop(t + 0.80);
+    });
+  }
+
+  // bass (subby)
+  if(stepCount % 4 === 0){
+    const root = chord[0] - 24;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const f = ctx.createBiquadFilter();
+    o.type = "sine";
+    o.frequency.setValueAtTime(noteFreq(root), t);
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(180, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    o.connect(f); f.connect(g); g.connect(audio.musicGain);
+    o.start(t); o.stop(t + 0.36);
+  }
+
+  // lazy hats (noise ticks)
+  if(stepCount % 2 === 1){
+    noiseTick(t, 0.045, 2800 + rand()*700, 0.05);
+  }
+
+  // soft kick (every 2 beats)
+  if(stepCount % 4 === 0){
+    kick(t);
+  }
+
+  // occasional pluck melody (very sparse)
+  if(stepCount % 4 === 2 && rand() < 0.55){
+    const pick = chord[Math.floor(rand()*chord.length)] + (rand()<0.25 ? 12 : 0);
+    pluck(t + 0.03, noteFreq(pick), 0.06);
+  }
+
+  stepCount++;
+}
+function noiseBuffer(){
+  const ctx = audio.ctx;
+  const len = ctx.sampleRate * 0.2;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<len;i++){
+    data[i] = (Math.random()*2-1) * (0.9 - i/len); // decay
+  }
+  return buf;
+}
+function noiseTick(t, dur, cutoff, amp){
+  const ctx = audio.ctx;
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuffer();
+  const f = ctx.createBiquadFilter();
+  f.type = "highpass";
+  f.frequency.setValueAtTime(cutoff, t);
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(amp, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  src.connect(f); f.connect(g); g.connect(audio.noiseGain);
+  src.start(t);
+  src.stop(t + dur + 0.02);
+}
+function kick(t){
+  const ctx = audio.ctx;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+
+  // pitch drop
+  o.frequency.setValueAtTime(130, t);
+  o.frequency.exponentialRampToValueAtTime(50, t + 0.09);
+
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.16, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+
+  o.connect(g); g.connect(audio.musicGain);
+  o.start(t);
+  o.stop(t + 0.14);
+}
+function pluck(t, freq, amp){
+  const ctx = audio.ctx;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  const f = ctx.createBiquadFilter();
+  o.type = "sine";
+  o.frequency.setValueAtTime(freq, t);
+  f.type = "lowpass";
+  f.frequency.setValueAtTime(1200, t);
+
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(amp, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+
+  o.connect(f); f.connect(g); g.connect(audio.musicGain);
+  o.start(t);
+  o.stop(t + 0.23);
 }
 
+/* small UI SFX (also generated) */
+function sfxPop(kind){
+  // keep it subtle; reuse audio master but separate quick beeps
+  if(!bgmOn) return; // follow BGM toggle
+  ensureAudio();
+  const ctx = audio.ctx;
+  const t = ctx.currentTime;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  const f = kind==="pick" ? 520 : (kind==="drop" ? 420 : 320);
+  o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.06, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
+  o.connect(g); g.connect(audio.master);
+  o.start(t); o.stop(t + 0.11);
+}
+
+/* ===== 6) LIFF init ===== */
 async function initLIFF(){
-  // TODO：部署後換成你的 LIFF ID
-  const LIFF_ID = "2008838401-Ss5SClrX";
-
   const inLineUA = /Line/i.test(navigator.userAgent);
 
   try{
-    if(window.liff && LIFF_ID && LIFF_ID !== "PUT_YOUR_LIFF_ID_HERE"){
+    if(window.liff && LIFF_ID){
       await liff.init({ liffId: LIFF_ID });
+      liffReady = true;
       ui.modeBadge.textContent = liff.isInClient() ? "LINE" : "WEB";
+
       if(liff.isLoggedIn()){
         const p = await liff.getProfile();
-        ui.userLine.textContent = `Hi ${p.displayName}｜鹿粉請就位 🦒✨`;
+        displayName = p.displayName || "鹿粉";
+        ui.userLine.textContent = `Hi ${displayName}｜鹿粉請就位 🦒✨`;
       }else{
+        displayName = "鹿粉";
         ui.userLine.textContent = "未登入（仍可直接玩）";
       }
-    }else{
-      ui.modeBadge.textContent = inLineUA ? "LINE" : "WEB";
-      ui.userLine.textContent = inLineUA ? "在 LINE 內開啟 ✅（部署後可顯示名稱）" : "一般瀏覽器模式";
+      return;
     }
-  }catch{
-    ui.modeBadge.textContent = "WEB";
-    ui.userLine.textContent = "LIFF 初始化失敗，但仍可遊玩";
-  }
+  }catch{}
+
+  ui.modeBadge.textContent = inLineUA ? "LINE" : "WEB";
+  displayName = "鹿粉";
+  ui.userLine.textContent = inLineUA ? "在 LINE 內開啟 ✅" : "一般瀏覽器模式";
 }
 
+/* ===== actions ===== */
 function closeWindow(){
   if(window.liff && liff.isInClient && liff.isInClient()){
     liff.closeWindow();
@@ -920,45 +1405,132 @@ function closeWindow(){
 }
 
 async function shareResult(){
-  const text = `🦒✨ 我剛在「鹿鹿搬運任務（${N} 枚）」用 ${moves} 步、${fmtTime(elapsedSec)} 通關！鹿粉報到～`;
+  const text = `🦒✨ ${displayName} 完成「鹿鹿搬運任務」：${N} 枚徽章／${moves} 步／${fmtTime(elapsedSec)}！鹿粉報到～`;
   try{
     if(window.liff && liff.isApiAvailable && liff.isApiAvailable("shareTargetPicker")){
       await liff.shareTargetPicker([{ type:"text", text }]);
       toast("已呼叫分享");
     }else{
       await navigator.clipboard.writeText(text);
-      toast("已複製到剪貼簿");
+      toast("已複製分享文字");
     }
   }catch{
     try{ prompt("複製分享文字：", text); }catch{}
   }
 }
 
-/** Events */
-ui.btnHow.addEventListener("click", showHow);
-ui.btnSound.addEventListener("click", ()=>{
-  soundOn = !soundOn;
-  ui.btnSound.textContent = `音效：${soundOn ? "開" : "關"}`;
-  if(soundOn) popSfx("pick");
+function showHowModal(){
+  // 2) 只說明玩法，不列一堆規則
+  ui.startTitle.textContent = "📖 玩法";
+  ui.startText.textContent = "點一下最上層「鹿粉徽章」拿起，再點目標柱子放下。\n把全部徽章搬到第 3 柱，就完成任務！";
+  ui.btnStartMore.style.display = "none"; // 玩法視窗就簡潔
+  ui.overlayStart.classList.add("show");
+}
+
+/* ===== events ===== */
+ui.btnHow.addEventListener("click", ()=>{
+  if(!appEnabled) return;
+  showHowModal();
 });
-ui.btnRestart.addEventListener("click", ()=> resetGame(N));
+
+ui.btnBgm.addEventListener("click", ()=>{
+  bgmOn = !bgmOn;
+  setBgmButton();
+  if(!bgmOn){
+    stopBgm();
+  }else{
+    // will start on next user gesture or immediately if already interacted
+    startBgmIfNeeded();
+  }
+});
+
+ui.btnRestart.addEventListener("click", ()=>{
+  if(!appEnabled) return;
+  resetGame(N);
+});
+
 ui.btnClose.addEventListener("click", closeWindow);
-ui.btnNew.addEventListener("click", ()=> resetGame(parseInt(ui.level.value,10)));
+
+ui.btnNew.addEventListener("click", ()=>{
+  if(!appEnabled) return;
+  resetGame(parseInt(ui.level.value,10));
+});
+
+ui.btnQuickStart.addEventListener("click", ()=>{
+  // mark tutorial seen today (3)
+  setTutorialLastDate(todayStr());
+
+  hideStartOverlay();
+  readyToPlay = true;
+
+  // Start timer only if landscape
+  if(isLandscape()){
+    startTimer();
+  }
+  // Start BGM on this user gesture
+  startBgmIfNeeded();
+  toast("鹿粉集合！開搬～");
+});
+
+ui.btnStartMore.addEventListener("click", ()=>{
+  // toggle between compact & full help
+  ui.startTitle.textContent = "📖 玩法";
+  ui.startText.textContent = "點一下最上層「鹿粉徽章」拿起，再點目標柱子放下。\n把全部徽章搬到第 3 柱，就完成任務！";
+  ui.btnStartMore.textContent = "再看一次玩法";
+  ui.btnStartMore.style.display = "inline-block";
+});
+
+ui.btnShare.addEventListener("click", shareResult);
+
+ui.btnAgain.addEventListener("click", ()=>{
+  ui.overlayWin.classList.remove("show");
+  resetGame(N);
+});
+
 ui.btnNext.addEventListener("click", ()=>{
   ui.overlayWin.classList.remove("show");
   const next = Math.min(8, N + 1);
   ui.level.value = String(next);
   resetGame(next);
 });
-ui.btnShare.addEventListener("click", shareResult);
 
-/** Start */
+/* ===== boot ===== */
+(function purgeOldLeaderboards(){
+  // 4) 僅保留今天：順手清除其他日期 key（本機）
+  const today = leaderKey();
+  try{
+    const keysToDelete = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith(LS_DAILY_LEADER_PREFIX) && k !== today){
+        keysToDelete.push(k);
+      }
+    }
+    keysToDelete.forEach(k=> localStorage.removeItem(k));
+  }catch{}
+})();
+
 (async function main(){
+  setBgmButton();
+  updateOrientationGate(); // init orientation state
+
   await initLIFF();
-  renderBest();
+
+  // init UI date pill
+  ui.todayPill.textContent = "今天";
+  ui.todayKey.textContent = todayStr();
+
+  // init game
+  ui.minMoves.textContent = String(minMovesFor(N));
+  renderLeaders();
   resetGame(N);
+
+  // start overlay content depends on whether tutorial seen today
+  showStartOverlay();
+
+  // clicking background outside overlays shouldn't do anything
+  // ensure start overlay doesn't block portrait gate; portrait gate is above all anyway
 })();
 </script>
 </body>
 </html>
-
